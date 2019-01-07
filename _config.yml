@@ -3,9 +3,9 @@
 # ----------------------- #
 
 url: http://francisrstokes.github.io/blog
-title: My Octopress Blog
-subtitle: A blogging framework for hackers.
-author: Your Name
+title: "Francis Stokes: Blog"
+subtitle: Programming ❤️ Math
+author: Francis Stokes
 simple_search: https://www.google.com/search
 description:
 
@@ -41,6 +41,8 @@ rdiscount:
     - smart
 highlighter: pygments # default python pygments have been replaced by pygments.rb
 
+sidebar: collapse
+
 paginate: 10          # Posts per page on the blog index
 paginate_path: "posts/:num"  # Directory base for pagination URLs eg. /posts/2/
 recent_posts: 5       # Posts in the sidebar Recent Posts section
@@ -64,13 +66,13 @@ default_asides: [asides/recent_posts.html, asides/github.html, asides/delicious.
 # ----------------------- #
 
 # Github repositories
-github_user:
+github_user: francisrstokes
 github_repo_count: 0
 github_show_profile_link: true
 github_skip_forks: true
 
 # Twitter
-twitter_user:
+twitter_user: fstokesman
 twitter_tweet_button: true
 
 # Google +1
