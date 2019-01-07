@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Francis Stokes: Blog</title>
+  <title>Arcsecond: Parsing in JavaScript Made Easy - Francis Stokes: Blog</title>
   <meta name="author" content="Francis Stokes">
 
   
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://francisrstokes.github.io/blog/">
+  <link rel="canonical" href="http://francisrstokes.github.io/blog/blog/2019/01/07/arcsecond-parsing-in-javascript-made-easy/">
   <link href="/blog/favicon.png" rel="icon">
   <link href="/blog/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/blog/atom.xml" rel="alternate" title="Francis Stokes: Blog" type="application/atom+xml">
@@ -65,15 +65,12 @@
 </nav>
   <div id="main">
     <div id="content">
-      <div class="blog-index">
+      <div>
+<article class="hentry" role="article">
   
-  
-  
-    <article>
-      
   <header>
     
-      <h1 class="entry-title"><a href="/blog/blog/2019/01/07/arcsecond-parsing-in-javascript-made-easy/">Arcsecond: Parsing in JavaScript Made Easy</a></h1>
+      <h1 class="entry-title">Arcsecond: Parsing in JavaScript Made Easy</h1>
     
     
       <p class="meta">
@@ -89,7 +86,7 @@
   </header>
 
 
-  <div class="entry-content"><p><img class="center" src="/blog/images/gandalf.png" width="600" height="600" title="image" alt="images"></p>
+<div class="entry-content"><p><img class="center" src="/blog/images/gandalf.png" width="600" height="600" title="image" alt="images"></p>
 
 <p>I recently starting making a serious attempt at learning Haskell (anyone who has tried before will probably sympathise that it usually takes a couple of tries to crack it). Amongst the many cool things Haskell has to offer is an amazing parsing library that comes with the standard set of packages called <a href="https://wiki.haskell.org/Parsec"><strong>Parsec</strong></a><strong>,</strong> which lets you describe how to parse complex grammars in what essentially looks like natural language.</p>
 
@@ -1121,472 +1118,52 @@
 
 <blockquote><p><strong>npm i arcsecond</strong></p></blockquote>
 </div>
-  
-  
 
 
-    </article>
-  
-  
-    <article>
+  <footer>
+    <p class="meta">
       
-  <header>
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Francis Stokes</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2019-01-07T14:20:18+01:00'><span class='date'><span class='date-month'>Jan</span> <span class='date-day'>7</span><span class='date-suffix'>th</span>, <span class='date-year'>2019</span></span> <span class='time'>2:20 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/blog/categories/functional-programming/'>functional-programming</a>, <a class='category' href='/blog/blog/categories/haskell/'>haskell</a>, <a class='category' href='/blog/blog/categories/javascript/'>javascript</a>
+  
+</span>
+
+
+    </p>
     
-      <h1 class="entry-title"><a href="/blog/blog/2019/01/07/infinite-data-structures-in-javascript/">Infinite Data Structures in JavaScript</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2019-01-07T11:39:22+01:00'><span class='date'><span class='date-month'>Jan</span> <span class='date-day'>7</span><span class='date-suffix'>th</span>, <span class='date-year'>2019</span></span> <span class='time'>11:39 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><em>Languages like Haskell are able to deal directly with Infinite Lists, but can that ability be brought to the world of JavaScript?</em></p>
-
-<hr />
-
-<p><img class="center" src="/blog/images/inf-structure.png" width="600" height="600" title="image" alt="images"></p>
-
-<p>In the real world we deal with “infinite” ideas all the time. All the positive numbers is an example of an infinite concept we wouldn’t bat an eye at. But typically when we are programming we have to think of these infinite concepts in a finite way. You can’t have an Array of all the positive numbers (at least not in JavaScript!).</p>
-
-<p>What I want to introduce in this article is the idea of an <strong>Infinite List</strong> data structure, which can represent some never ending sequence, and let’s us use common operations like <strong><em>map</em></strong> and <strong><em>filter</em></strong> to modify and create new sequences.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="nx">allPositiveNumbers</span> <span class="o">=</span> <span class="cm">/* somehow we can create this */</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// We can create new Infinite structures using map and filter</span>
-</span><span class='line'><span class="kr">const</span> <span class="nx">allEvenNumbers</span> <span class="o">=</span> <span class="nx">allPositiveNumbers</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">x</span> <span class="o">=&gt;</span> <span class="nx">x</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">===</span> <span class="mi">0</span><span class="p">);</span>
-</span><span class='line'><span class="kr">const</span> <span class="nx">allOddNumbers</span> <span class="o">=</span> <span class="nx">allEvenNumbers</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">x</span> <span class="o">=&gt;</span> <span class="nx">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>When we want to actually <em>use the data</em>, we can just <strong><em>take</em></strong> some concrete amount of it.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">allPositiveNumbers</span><span class="p">.</span><span class="nx">take</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
-</span><span class='line'><span class="c1">// -&gt; [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">allEvenNumbers</span><span class="p">.</span><span class="nx">take</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
-</span><span class='line'><span class="c1">// -&gt; [ 2, 4, 6, 8, 10, 12, 14, 16, 18, 20 ]</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">allOddNumbers</span><span class="p">.</span><span class="nx">take</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
-</span><span class='line'><span class="c1">// -&gt; [ 1, 3, 5, 7, 9, 11, 13, 15, 17, 19 ]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h1>Creating an Infinite List</h1>
-
-<p>To create the kind of structure defined above, we first need some way to just <em>describe</em> an infinite thing without needing to actually evaluate it (which would kill the computer <em>really fast</em>). To do that we first need to understand 2 things:</p>
-
-<ul>
-<li>The <em>iterator pattern</em></li>
-<li><em>Generator</em> functions</li>
-</ul>
-
-
-<h2>The iterator pattern</h2>
-
-<p>Let’s start with the <em>iterator pattern</em> first. The <em>iterator pattern</em> is a kind of design pattern where you can produce a lot of values, one at a time. It’s basically just an object with a <strong><em>.next()</em></strong> method. When that method is called, it returns another object with 2 keys: <strong><em>value</em></strong> and <strong><em>done</em></strong>. As we call <strong><em>.next()</em></strong>, the <strong><em>done</em></strong> property indicates whether the iterator has more values to give us, and the <strong><em>value</em></strong> is of course the value. Below is a simple iterator that returns values 0 to 3:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="nx">createIterator</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
-</span><span class='line'>  <span class="kd">let</span> <span class="nx">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>  <span class="k">return</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">next</span><span class="o">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
-</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="nx">x</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">return</span> <span class="p">{</span> <span class="nx">value</span><span class="o">:</span> <span class="kc">undefined</span><span class="p">,</span> <span class="nx">done</span><span class="o">:</span> <span class="kc">true</span> <span class="p">};</span>
-</span><span class='line'>      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>        <span class="kr">const</span> <span class="nx">currentValue</span> <span class="o">=</span> <span class="nx">x</span><span class="p">;</span>
-</span><span class='line'>        <span class="nx">x</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">return</span> <span class="p">{</span> <span class="nx">value</span><span class="o">:</span> <span class="nx">currentValue</span><span class="p">,</span> <span class="nx">done</span><span class="o">:</span> <span class="kc">false</span> <span class="p">};</span>
-</span><span class='line'>      <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">};</span>
-</span><span class='line'>
-</span><span class='line'><span class="kr">const</span> <span class="nx">iterator</span> <span class="o">=</span> <span class="nx">createIterator</span><span class="p">();</span>
-</span><span class='line'><span class="nx">iterator</span><span class="p">.</span><span class="nx">next</span><span class="p">();</span>
-</span><span class='line'><span class="c1">// -&gt; { value: 0, done: false }</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">iterator</span><span class="p">.</span><span class="nx">next</span><span class="p">();</span>
-</span><span class='line'><span class="c1">// -&gt; { value: 1, done: false }</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">iterator</span><span class="p">.</span><span class="nx">next</span><span class="p">();</span>
-</span><span class='line'><span class="c1">// -&gt; { value: 2, done: false }</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">iterator</span><span class="p">.</span><span class="nx">next</span><span class="p">();</span>
-</span><span class='line'><span class="c1">// -&gt; { value: 3, done: false }</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">iterator</span><span class="p">.</span><span class="nx">next</span><span class="p">();</span>
-</span><span class='line'><span class="c1">// -&gt; { value: undefined, done: true }</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This kind of pattern has a <em>first-class</em> place in JavaScript. <strong><em>Arrays, Objects, Maps, and Sets</em></strong> can all implement the iterator pattern by conforming to an interface called <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Iterators_and_Generators#Iterables"><strong>Iterable</strong></a>.</p>
-
-<h2>Generator functions</h2>
-
-<p>Generator functions are a special kind of function in JavaScript which is declared with the <strong>function* syntax</strong>. Generator functions are used to create <em>iterator</em> objects (ones with a <strong><em>.next()</em></strong> method), but in much clearer and more concise way. Below is a finite generator that creates an equivalent iterator:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="nx">createIterator</span> <span class="o">=</span> <span class="kd">function</span><span class="o">*</span> <span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>  <span class="kd">let</span> <span class="nx">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>  <span class="k">while</span> <span class="p">(</span><span class="nx">x</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">yield</span> <span class="nx">x</span><span class="p">;</span>
-</span><span class='line'>    <span class="nx">x</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">};</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Here, the <strong><em>yield</em></strong> keyword is used to indicate the value that is returned every time the iterator is called. You can think of the function pausing after every yield, and picking up where it left off when the iterator’s <strong><em>.next()</em></strong> method is called again.</p>
-
-<p>All it would take to make this an infinite generator is to turn the <strong><em>while (x &lt; 4)</em></strong> loop into a <strong><em>while (true)</em></strong> loop. For a better feel, here’s an infinite generator for the famous fibonacci sequence:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="nx">createFibSeqIterator</span> <span class="o">=</span> <span class="kd">function</span><span class="o">*</span> <span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>  <span class="kd">let</span> <span class="nx">a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>  <span class="kd">let</span> <span class="nx">b</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-</span><span class='line'>  <span class="k">while</span> <span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">yield</span> <span class="nx">b</span><span class="p">;</span>
-</span><span class='line'>    <span class="kr">const</span> <span class="nx">tmp</span> <span class="o">=</span> <span class="nx">a</span><span class="p">;</span>
-</span><span class='line'>    <span class="nx">a</span> <span class="o">=</span> <span class="nx">b</span><span class="p">;</span>
-</span><span class='line'>    <span class="nx">b</span> <span class="o">=</span> <span class="nx">b</span> <span class="o">+</span> <span class="nx">tmp</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">};</span>
-</span><span class='line'>
-</span><span class='line'><span class="kr">const</span> <span class="nx">fibSeq</span> <span class="o">=</span> <span class="nx">createFibSeqIterator</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">fibSeq</span><span class="p">.</span><span class="nx">next</span><span class="p">()</span> <span class="c1">// -&gt; { value: 1, done: false }</span>
-</span><span class='line'><span class="nx">fibSeq</span><span class="p">.</span><span class="nx">next</span><span class="p">()</span> <span class="c1">// -&gt; { value: 1, done: false }</span>
-</span><span class='line'><span class="nx">fibSeq</span><span class="p">.</span><span class="nx">next</span><span class="p">()</span> <span class="c1">// -&gt; { value: 2, done: false }</span>
-</span><span class='line'><span class="nx">fibSeq</span><span class="p">.</span><span class="nx">next</span><span class="p">()</span> <span class="c1">// -&gt; { value: 3, done: false }</span>
-</span><span class='line'><span class="nx">fibSeq</span><span class="p">.</span><span class="nx">next</span><span class="p">()</span> <span class="c1">// -&gt; { value: 5, done: false }</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Putting it together</h2>
-
-<p>Iterators seem like a representation of something infinite because it lets us ask for the <strong><em>.next()</em></strong> element indefinitely. Furthermore, a generator seems like a good way to specify the iterator, because we can write succinct algorithms for infinite series without the boilerplate of manually crafting iterators.</p>
-
-<p>But this still isn’t enough, because as powerful as generators are, they’re not really compositional. If I wanted to to create a generator where I filtered to all the fibonacci numbers that ended with a 5, I can’t easily use my existing createFibSeqIterator() to do that — i.e. I can’t compose the idea of the original generator + some new operation on it.</p>
-
-<p>To remedy this, we first need to encapsulate the generator into a data type, which we can do with a class:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">class</span> <span class="nx">Infinite</span> <span class="p">{</span>
-</span><span class='line'>  <span class="nx">constructor</span> <span class="p">(</span><span class="nx">generatorFn</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">generator</span> <span class="o">=</span> <span class="nx">generatorFn</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>It’s on this class that we will implement our operations like <strong><em>filter</em></strong>, <strong><em>map</em></strong>, and <strong><em>take</em></strong>.</p>
-
-<h2>Infinitely Lazy</h2>
-
-<p>You might be puzzled when thinking about how we could implement an operation such as <strong><em>filter</em></strong>. The answer is <em>simple</em>: we do it lazily. Instead of actually trying to filter our list, we just make a note inside the <strong><em>Infinite</em></strong> class. Then when the user wants concretely <strong><em>.take()</em></strong> some elements of it, we can do the actual business of filtering then.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">class</span> <span class="nx">Infinite</span> <span class="p">{</span>
-</span><span class='line'>  <span class="nx">constructor</span> <span class="p">(</span><span class="nx">generatorFn</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">generator</span> <span class="o">=</span> <span class="nx">generatorFn</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">transformations</span> <span class="o">=</span> <span class="p">[];</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nx">filter</span><span class="p">(</span><span class="nx">filterFn</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kr">const</span> <span class="nx">newInfinite</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Infinite</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">generator</span><span class="p">);</span>
-</span><span class='line'>    <span class="nx">newInfinite</span><span class="p">.</span><span class="nx">transformations</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">transformations</span><span class="p">.</span><span class="nx">slice</span><span class="p">();</span>
-</span><span class='line'>    <span class="nx">newInfinite</span><span class="p">.</span><span class="nx">transformations</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span>
-</span><span class='line'>      <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;filter&#39;</span><span class="p">,</span>
-</span><span class='line'>      <span class="nx">fn</span><span class="o">:</span> <span class="nx">filterFn</span>
-</span><span class='line'>    <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">return</span> <span class="nx">newInfinite</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The <strong><em>Infinite</em></strong> class gets a new <strong><em>transformations</em></strong> property, and <strong><em>filter</em></strong> creates a new Infinite with the same generator and transformations array, and pushes a transformation into the list.</p>
-
-<p>We now have all the components we need now to write a <strong><em>.take()</em></strong> that will make the list concrete.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">class</span> <span class="nx">Infinite</span> <span class="p">{</span>
-</span><span class='line'>  <span class="nx">constructor</span> <span class="p">(</span><span class="nx">generatorFn</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">generator</span> <span class="o">=</span> <span class="nx">generatorFn</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">transformations</span> <span class="o">=</span> <span class="p">[];</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nx">filter</span><span class="p">(</span><span class="nx">filterFn</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kr">const</span> <span class="nx">newInfinite</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Infinite</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">generator</span><span class="p">);</span>
-</span><span class='line'>    <span class="nx">newInfinite</span><span class="p">.</span><span class="nx">transformations</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">transformations</span><span class="p">.</span><span class="nx">slice</span><span class="p">();</span>
-</span><span class='line'>    <span class="nx">newInfinite</span><span class="p">.</span><span class="nx">transformations</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span>
-</span><span class='line'>      <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;filter&#39;</span><span class="p">,</span>
-</span><span class='line'>      <span class="nx">fn</span><span class="o">:</span> <span class="nx">filterFn</span>
-</span><span class='line'>    <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">return</span> <span class="nx">newInfinite</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nx">take</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kr">const</span> <span class="nx">iterator</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">generator</span><span class="p">();</span>
-</span><span class='line'>    <span class="kr">const</span> <span class="nx">concrete</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">n</span><span class="p">);</span>
-</span><span class='line'>    <span class="kd">let</span> <span class="nx">index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">while</span> <span class="p">(</span><span class="nx">index</span> <span class="o">&lt;</span> <span class="nx">n</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="kr">const</span> <span class="p">{</span><span class="nx">value</span><span class="p">,</span> <span class="nx">done</span><span class="p">}</span> <span class="o">=</span> <span class="nx">iterator</span><span class="p">.</span><span class="nx">next</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="c1">// The generator wasn&#39;t infinite, return what we got up until this point</span>
-</span><span class='line'>        <span class="k">return</span> <span class="nx">concrete</span><span class="p">;</span>
-</span><span class='line'>      <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="c1">// Loop over the transformations and apply them to the value</span>
-</span><span class='line'>      <span class="kd">let</span> <span class="nx">x</span> <span class="o">=</span> <span class="nx">value</span><span class="p">;</span>
-</span><span class='line'>      <span class="kd">let</span> <span class="nx">filtered</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
-</span><span class='line'>      <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">transformations</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="kr">const</span> <span class="nx">T</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">transformations</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nx">T</span><span class="p">.</span><span class="nx">type</span> <span class="o">===</span> <span class="s1">&#39;filter&#39;</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">T</span><span class="p">.</span><span class="nx">fn</span><span class="p">(</span><span class="nx">x</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>            <span class="nx">filtered</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
-</span><span class='line'>          <span class="p">}</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>      <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="c1">// After the transformations are complete, if we didn&#39;t filter, then we can</span>
-</span><span class='line'>      <span class="c1">// x to the concrete list</span>
-</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">filtered</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nx">concrete</span><span class="p">[</span><span class="nx">index</span><span class="p">]</span> <span class="o">=</span> <span class="nx">x</span><span class="p">;</span>
-</span><span class='line'>        <span class="nx">index</span><span class="o">++</span><span class="p">;</span>
-</span><span class='line'>      <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">return</span> <span class="nx">concrete</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>When we call <strong><em>.take(n)</em></strong>, we can create an iterator out of the generator, and then initialize a fixed-length array with <strong><em>n</em></strong> elements. This will be our concrete list. An index variable can be used to keep track of how many concrete values we’ve collected so far. Using a while loop, we can get a value out of the iterator, and then run our list of transformations on it. If one of those transformations is a <strong><em>filter</em></strong>, and it doesn’t pass the test, we simply don’t add it to our concrete list, and repeat the loop. When we’ve collected <strong><em>n</em></strong> elements, we’re done and can return the concrete list.</p>
-
-<p>Let’s see how that looks with the fibonacci example from before:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="nx">fibonacciSequence</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Infinite</span><span class="p">(</span><span class="kd">function</span><span class="o">*</span> <span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>  <span class="kd">let</span> <span class="nx">a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>  <span class="kd">let</span> <span class="nx">b</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-</span><span class='line'>  <span class="k">while</span> <span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">yield</span> <span class="nx">b</span><span class="p">;</span>
-</span><span class='line'>    <span class="kr">const</span> <span class="nx">tmp</span> <span class="o">=</span> <span class="nx">a</span><span class="p">;</span>
-</span><span class='line'>    <span class="nx">a</span> <span class="o">=</span> <span class="nx">b</span><span class="p">;</span>
-</span><span class='line'>    <span class="nx">b</span> <span class="o">=</span> <span class="nx">b</span> <span class="o">+</span> <span class="nx">tmp</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'><span class="kr">const</span> <span class="nx">fibsEndingWith5</span> <span class="o">=</span> <span class="nx">fibonacciSequence</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">x</span> <span class="o">=&gt;</span> <span class="p">{</span>
-</span><span class='line'>  <span class="kr">const</span> <span class="nx">str</span> <span class="o">=</span> <span class="nx">x</span><span class="p">.</span><span class="nx">toString</span><span class="p">();</span>
-</span><span class='line'>  <span class="k">return</span> <span class="nx">str</span><span class="p">[</span><span class="nx">str</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">===</span> <span class="s1">&#39;5&#39;</span><span class="p">;</span>
-</span><span class='line'><span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">fibonacciSequence</span><span class="p">.</span><span class="nx">take</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
-</span><span class='line'><span class="c1">// -&gt; [ 1, 1, 2, 3, 5 ]</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">fibsEndingWith5</span><span class="p">.</span><span class="nx">take</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
-</span><span class='line'><span class="c1">// -&gt; [ 5, 55, 6765, 75025, 9227465 ]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>To implement <strong><em>map</em></strong>, we could use much the same approach as with <strong><em>filter</em></strong>. The map method itself just clones the current <strong><em>Infinite</em></strong> and adds a new transformation to the list. Inside take, it’s enough to just add an <strong><em>else-if</em></strong> inside the transformation loop.</p>
-
-<h2>Conclusion</h2>
-
-<p>In this article we’ve explored the <em>iterator pattern</em> and <em>generator functions</em> in order to build a compositional and <em>lazily-evaluated</em> Infinite List data structure.</p>
-
-<p>The <strong><em>Infinite</em></strong> List in this article is a bit limited however, because it lacks some operations that would make it truly useful, like a map implementation, dependent filtering, or the ability to combine Infinites together (like pairing every fibonacci number with a prime number, for example).</p>
-
-<p>For these I created <em>lazy-infinite</em>, a more powerful <strong><em>Infinite List</em></strong> structure, that conforms to the <a href="https://github.com/fantasyland/fantasy-land">Fantasy-Land</a> specification. <a href="https://github.com/francisrstokes/Lazy-Infinite-List">I’d love for you to take a look on github</a>, or to give it a try in your next project with</p>
-
-<p><em>npm i lazy-infinite</em></p>
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://francisrstokes.github.io/blog/blog/2019/01/07/arcsecond-parsing-in-javascript-made-easy/" data-via="fstokesman" data-counturl="http://francisrstokes.github.io/blog/blog/2019/01/07/arcsecond-parsing-in-javascript-made-easy/" >Tweet</a>
+  
+  
+  
 </div>
-  
-  
 
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/blog/2019/01/07/infinite-data-structures-in-javascript/" title="Previous Post: Infinite Data Structures In JavaScript">&laquo; Infinite Data Structures In JavaScript</a>
+      
+      
+    </p>
+  </footer>
+</article>
 
-    </article>
-  
-  <div class="pagination">
-    
-    <a href="/blog/blog/archives">Blog Archives</a>
-    
-  </div>
 </div>
+
 <aside class="sidebar">
   
     <section>
@@ -1639,6 +1216,7 @@
 
   
 </aside>
+
 
     </div>
   </div>

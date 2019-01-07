@@ -4,7 +4,7 @@
   <title><![CDATA[Category: functional-programming | Francis Stokes: Blog]]></title>
   <link href="http://francisrstokes.github.io/blog/blog/categories/functional-programming/atom.xml" rel="self"/>
   <link href="http://francisrstokes.github.io/blog/"/>
-  <updated>2019-01-07T13:10:16+01:00</updated>
+  <updated>2019-01-07T14:32:52+01:00</updated>
   <id>http://francisrstokes.github.io/blog/</id>
   <author>
     <name><![CDATA[Francis Stokes]]></name>
@@ -12,6 +12,608 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Arcsecond: Parsing In JavaScript Made Easy]]></title>
+    <link href="http://francisrstokes.github.io/blog/blog/2019/01/07/arcsecond-parsing-in-javascript-made-easy/"/>
+    <updated>2019-01-07T14:20:18+01:00</updated>
+    <id>http://francisrstokes.github.io/blog/blog/2019/01/07/arcsecond-parsing-in-javascript-made-easy</id>
+    <content type="html"><![CDATA[<p><img class="center" src="/images/gandalf.png" width="600" height="600" title="&lsquo;image&rsquo; &lsquo;images&rsquo;" ></p>
+
+<p>I recently starting making a serious attempt at learning Haskell (anyone who has tried before will probably sympathise that it usually takes a couple of tries to crack it). Amongst the many cool things Haskell has to offer is an amazing parsing library that comes with the standard set of packages called <a href="https://wiki.haskell.org/Parsec"><strong>Parsec</strong></a><strong>,</strong> which lets you describe how to parse complex grammars in what essentially looks like natural language.</p>
+
+<p>Here is how a CSV parser is implemented using Parsec. Don’t worry if you don’t understand all the syntax, the point is that the whole parser is specified in just four lines.</p>
+
+<pre><code class="haskell">-- Taken from http://book.realworldhaskell.org/read/using-parsec.html
+
+import Text.ParserCombinators.Parsec
+
+csvFile = endBy line eol
+line = sepBy cell (char ',')
+cell = many (noneOf ",\n")
+eol = char '\n'
+
+parseCSV :: String -&gt; Either ParseError [[String]]
+parseCSV input = parse csvFile "(unknown)" input
+</code></pre>
+
+<p>If you want to read more checkout <a href="http://book.realworldhaskell.org">http://book.realworldhaskell.org</a></p>
+
+<p>This post is not about Haskell however, <a href="https://github.com/francisrstokes/arcsecond">but rather a library I wrote called <strong>arcsecond</strong> which is based on Parsec</a>, with the goal of bringing that same expressivity to JavaScript.</p>
+
+<h3>Parser combinators</h3>
+
+<p><strong>arcsecond</strong> is a parser combinator library, in which complex parsers can be built by composing simple parsers. The simplest parsers just match specific strings or characters:</p>
+
+<pre><code class="javascript">
+const { digit, letter, char, str, regex } = require('arcsecond');
+
+// digit will parse any number 0-9
+// letter will parse any letter a-z or A-Z
+
+// char and str will parse specific sequences
+const getA = char ('a');
+const getHello = str ('hello');
+
+// regex will parse any given regular expression
+const getLowNumbers = regex (/^[0-4]+/);
+</code></pre>
+
+<p>These can then be combined together with the <em>combinators</em> in the library.</p>
+
+<pre><code class="javascript">const { char, str, sequenceOf, choice } = require('arcsecond');
+
+const worldOrMarsOrVenus = choice ([
+  str ('world'),
+  str ('mars'),
+  str ('venus')
+]);
+
+const combinedParser = sequenceOf ([
+  str ('hello'),
+  char (' '),
+  worldOrMarsOrVenus
+]);
+</code></pre>
+
+<p>Then the new parsers can be used with text:</p>
+
+<pre><code class="javascript">const { parse, char, str, sequenceOf, choice } = require('arcsecond');
+
+// parse creates a function we can use for parsing text
+const parseText = parse (combinedParser);
+
+console.log(
+  parseText ('hello world') 
+)
+// -&gt; [ 'hello', ' ', 'world' ]
+</code></pre>
+
+<h4>Combinators</h4>
+
+<p>The combinators are where it gets cool. In <strong>arcsecond</strong> a combinator is a higher order parser, which takes one or more parsers as its input and gives back a new parser that <em>combines</em> those in some way. If you’ve used <em>higher order components</em> in react like <strong><em>connect</em></strong>, <strong><em>withRouter</em></strong>, or <strong><em>withStyles</em></strong>, then you’re already familiar with the idea.</p>
+
+<p>As shown above, <strong><em>sequenceOf</em></strong> is a combinator that will parse text using each of the parsers in order, collecting their results into an array.</p>
+
+<p><strong><em>choice</em></strong>, on the other hand, will try each of its parsers in order and use the first one that matches. The library contains more, like <strong><em>many</em></strong>, which takes a parser as an argument and matches as much as it can using that parser, collecting up the results in an array:</p>
+
+<pre><code class="javascript">const { parse, many, choice, str } = require('arcsecond');
+
+const animal = choice ([
+  str ('dog'),
+  str ('whale'),
+  str ('bear'),
+  str ('ant')
+]);
+
+const manyAnimals = many (animal);
+
+// parse creates a function we can use for parsing text
+const parseText = parse (manyAnimals);
+
+console.log(
+  parseText ('dogantwhaledogbear') 
+)
+// -&gt; [ 'dog', 'ant', 'whale', 'dog', 'bear' ]
+</code></pre>
+
+<p>You can use <strong><em>sepBy</em></strong> to create a parser that matches items separated by something matched by <em>another parser</em>.</p>
+
+<pre><code class="javascript">const { parse, sepBy, choice, str, char } = require('arcsecond');
+
+const animal = choice ([
+  str ('dog'),
+  str ('whale'),
+  str ('bear'),
+  str ('ant')
+]);
+
+const commaSeparated = sepBy (char (','));
+
+const commaSeparatedAnimals = commaSeparated (animal);
+
+// parse creates a function we can use for parsing text
+const parseText = parse (commaSeparatedAnimals);
+
+console.log(
+  parseText ('dog,ant,whale,dog,bear') 
+)
+// -&gt; [ 'dog', 'ant', 'whale', 'dog', 'bear' ]
+</code></pre>
+
+<p><strong><em>between</em></strong> will let you match items that occur between <em>two other parsers</em>.</p>
+
+<pre><code class="javascript">const { parse, between, sepBy, choice, str, char } = require('arcsecond');
+
+const animal = choice ([
+  str ('dog'),
+  str ('whale'),
+  str ('bear'),
+  str ('ant')
+]);
+
+const betweenBrackets = between (char ('[')) (char (']'));
+const commaSeparated = sepBy (char (','));
+
+const commaSeparatedAnimals = commaSeparated (animal);
+const arrayOfAnimals = betweenBrackets (commaSeparatedAnimals);
+
+// parse creates a function we can use for parsing text
+const parseText = parse (arrayOfAnimals);
+
+console.log(
+  parseText ('[dog,ant,whale,dog,bear]') 
+)
+// -&gt; [ 'dog', 'ant', 'whale', 'dog', 'bear' ]
+</code></pre>
+
+<h4>Curried Functions</h4>
+
+<p><strong>arcsecond</strong> makes use of curried functions. If you don’t know what a curried function is, give my article “<a href="https://hackernoon.com/making-functional-programming-click-836d4715baf2">Making Functional Programming Click</a>” a read. If you really can’t be bothered right now, open that in another tab and read this executive summary.</p>
+
+<p>A curried function is one that, if it takes more than one argument, it instead returns a new function that takes the next argument. It’s easier to see with some code:</p>
+
+<pre><code class="javascript">// Normal function, just a single function taking both arguments and returning a result
+function normalAdd(a, b) {
+  return a + b; 
+}
+
+normalAdd(1, 2);
+// -&gt; 3
+
+
+// Curried function, a function that takes the first argument and then returns
+// *another function*, which takes the next argument.
+function curriedAdd(a) {
+  return function(b) {
+    return a + b; 
+  }
+}
+
+curriedAdd(1)(2);
+// -&gt; 3
+
+// We can use curried functions to easily make new, more specific functions
+const addOne = curriedAdd(1);
+
+addOne(2);
+// -&gt; 3
+</code></pre>
+
+<p>As you can see above, <strong><em>curriedAdd</em></strong> is first called with 1. Since it then returns a function, we can go ahead and call that with 2, which finally returns the actual result.</p>
+
+<p>We can use <strong><em>curriedAdd</em></strong> to create a new function by calling it with just one argument and then assigning the result to a variable. As a language, JavaScript treats functions as a first class citizen, meaning they can be passed around and assigned to variables.</p>
+
+<p>This principle lies at the heart of <strong>arcsecond,</strong> and every function in the library is defined this way. <strong><em>sepBy</em></strong> take two parsers — first a separator parser, and second a value parser. Because it is curried, it is easy to create a more specific combinator like <strong><em>commaSeparated</em></strong> by only supplying the first argument.</p>
+
+<blockquote><p>If you’re not used to it, it will probably seem strange. But a good lesson to learn as a software developer is not to have knee-jerk bad reactions to things that you don’t immediately understand. There is usually a reason, and you’ll find a lot more value by discovering that reason rather than dismissing it.</p></blockquote>
+
+<h3>Error Handling</h3>
+
+<p>If you try to parse a string which is not correctly formatted you would expect to get some kind of error message. <strong>arcsecond</strong> uses a special data type called an <strong><em>Either</em></strong>, which is <em>either</em> a value or an error. It’s like a <strong><em>Promise</em></strong>, which can be either Rejected or Resolved, but without the implication of being asynchronous. In an <strong><em>Either</em></strong> however, the “resolved” type is called a <strong><em>Right</em></strong>, and the “rejected” type is called a <strong><em>Left</em></strong>.</p>
+
+<p>The return type of <strong><em>parse</em></strong> is an Either. You can get at the value or error like this:</p>
+
+<pre><code class="javascript">const { parse, sequenceOf, str, char } = require('arcsecond');
+
+const parser = sequenceOf ([
+  str ('hello'),
+  char (' '),
+  str ('world')
+]);
+
+const parseResult = parse(parser)('hello world');
+
+// We can use the cata method, which is basically a switch/case but for types
+parseResult.cata({
+  Left: err =&gt; {
+    // do something here with the error
+  },
+  Right: result =&gt; {
+    // result -&gt; [ 'hello', ' ', 'world' ] 
+  }
+});
+</code></pre>
+
+<p>However this might not fit well into your codebase if you don’t have more functional code. For that reason there are two other options. The first is to convert the <strong><em>Either</em></strong> into a <strong><em>Promise:</em></strong></p>
+
+<pre><code class="javascript">const { parse, sequenceOf, str, char, toPromise } = require('arcsecond');
+
+const parser = sequenceOf ([
+  str ('hello'),
+  char (' '),
+  str ('world')
+]);
+
+const parseResult = parse(parser)('hello world');
+
+toPromise(parseResult)
+  .catch(err =&gt; {
+    // do something here with the error
+  })
+  .then(result =&gt; {
+    // result -&gt; [ 'hello', ' ', 'world' ] 
+  });
+</code></pre>
+
+<p>Or you can use <strong><em>toValue,</em></strong> which must be wrapped in a try/catch block:</p>
+
+<pre><code class="javascript">const { parse, sequenceOf, str, char, toValue } = require('arcsecond');
+
+const parser = sequenceOf ([
+  str ('hello'),
+  char (' '),
+  str ('world')
+]);
+
+const parseResult = parse(parser)('hello world');
+
+try {
+  const result = toValue(parseResult);
+  // -&gt; [ 'hello', ' ', 'world' ] 
+} catch (err) {
+  // do something with err
+}
+</code></pre>
+
+<h3>Something more complex: JSON</h3>
+
+<p>Let’s put <strong>arcsecond</strong> through its paces by using it to create a parser for JSON.</p>
+
+<blockquote><p><a href="https://gist.github.com/francisrstokes/4d5f5b2de9644cf547799e3ac85fc6e2"><em>Click here to skip ahead and see the full JSON parser in one file</em></a></p></blockquote>
+
+<h4>Values</h4>
+
+<p>JSON only has 7 possible values:</p>
+
+<ul>
+<li>String</li>
+<li>Number</li>
+<li>true</li>
+<li>false</li>
+<li>null</li>
+<li>Array</li>
+<li>Object</li>
+</ul>
+
+
+<p>So to write a JSON parser, we just need to write parsers for all these values.</p>
+
+<h4>Types</h4>
+
+<p>In order for our parser to be useful we need to be able to identify what we’ve parsed, and the best way to do that is to put the results into a data type, which will provide a common interface for us to interact with the JSON tree. Every type has a <em>type</em> name, a <em>value</em>, and a <em>toString</em> function to pretty print the structure.</p>
+
+<pre><code class="javascript">// Function to create a single-valued "type constructor"
+const makeBasicType = typeName =&gt; value =&gt; ({
+  type: typeName,
+  value,
+  toString: () =&gt; `${typeName}(${value})`
+});
+
+// Function to create a multi-valued "type constructor"
+const makeMultiType = typeName =&gt; values =&gt; ({
+  type: typeName,
+  value: values,
+  toString: () =&gt; `${typeName}(${values.map(v =&gt; v.toString()).join(', ')})`
+});
+
+
+
+const stringType = makeBasicType('String');
+const numberType = makeBasicType('Number');
+const booleanType = makeBasicType('Boolean');
+
+const arrayType = makeMultiType('Array');
+const objectType = makeMultiType('Object');
+
+// For the object, we can store the key/value pairs in their own type
+const keyValuePair = (key, value) =&gt; ({
+  type: 'KeyValuePair',
+  value: [key, value],
+  toString: () =&gt; `KeyValuePair(${key.toString()}, ${value.toString()})`
+});
+
+const nullType = () =&gt; ({
+  type: 'Null',
+  value: null,
+  toString: () =&gt; 'Null'
+});
+
+
+
+arrayType([
+  stringType("hello"),
+  numberType(42),
+  stringType("world"),
+  numberType(84),
+]).toString();
+// -&gt; Array(String(hello), Number(42), String(world), Number(84))
+</code></pre>
+
+<p>With our types in hand let’s start with the absolute simplest of parsers: <strong><em>true</em></strong>, <strong><em>false</em></strong> and <strong><em>null</em></strong>. These are just literal strings:</p>
+
+<pre><code class="javascript">const { parse, str, choice } = require('arcsecond');
+
+const nullParser = str ('null') .map(nullType);
+const trueParser = str ('true') .map(booleanType);
+const falseParser = str ('false') .map(booleanType);
+
+const jsonParser = choice ([
+  nullParser,
+  trueParser,
+  falseParser
+]);
+</code></pre>
+
+<blockquote><p>The parsers in <strong>arcsecond</strong> have a <strong><em>map</em></strong> method — just like arrays —which allows you to transform the value the parser matched. With <strong><em>map</em></strong> we can put the values matched into the data types defined above.</p></blockquote>
+
+<p>Numbers are a bit more complex. The <a href="https://json.org">JSON specification</a> has this railroad diagram showing how a number can be parsed:</p>
+
+<p><img class="center" src="/images/json-number.gif" width="600" height="600" title="&lsquo;image&rsquo; &lsquo;images&rsquo;" ></p>
+
+<p>The forks in the railroads show optionality, so the simplest number that can be matched is just 0.</p>
+
+<p>Basically a numbers like:</p>
+
+<ul>
+<li><em>1</em></li>
+<li><em>-0.2</em></li>
+<li><em>3.42e2</em></li>
+<li><em>-0.4352E-235</em></li>
+</ul>
+
+
+<p>Are all valid in JSON, while something like <em>03.46</em> is not, because no path in the railroad would allow for that.</p>
+
+<pre><code class="javascript">const {
+  choice,
+  sequenceOf,
+  char,
+  digits,
+  regex,
+  possibly,
+  anyOfString
+} = require('arcsecond');
+
+// The possibly parser either returns what it matches or null
+// We can use the possibly parser to make one that returns empty string
+// instead of null, which is more useful in this case
+const orEmptyString = parser =&gt; possibly (parser) .map(x =&gt; (x) ? x : '');
+
+// We also want to get sequences of matches, but then join them back
+// together afterwards, instead of being in an array
+const joinedSequence = parsers =&gt; sequenceOf (parsers) .map(x =&gt; x.join(''));
+
+const numberParser = joinedSequence ([
+  orEmptyString (char ('-')),
+  choice ([
+    char ('0'),
+    regex (/^[1-9][0-9]*/)
+  ]),
+  orEmptyString (joinedSequence ([
+    char ('.'),
+    digits
+  ])),
+  orEmptyString (joinedSequence([
+    anyOfString ('eE'),
+    orEmptyString (anyOfString ('-+')),
+    digits
+  ]))
+]) .map (x =&gt; numberType(Number(x)));
+
+
+// Now we can add the numberParser to the jsonParser
+const jsonParser = choice ([
+  nullParser,
+  trueParser,
+  falseParser,
+  numberParser
+]);
+</code></pre>
+
+<p>If you take the time to read through the <strong><em>numberParser</em></strong>, you’ll see it lines up pretty much 1:1 with the diagram above.</p>
+
+<p>Let’s try strings next. A string is anything between double quotes, but it can also contain escaped quotes.</p>
+
+<pre><code class="javascript">const {
+  between,
+  many,
+  choice,
+  sequenceOf,
+  char,
+  anythingExcept
+} = require('arcsecond');
+
+// Like joinedSequence, we want to get many of the same matches and then join them
+const joinedMany = parser =&gt; many (parser) .map(x =&gt; x.join(''));
+
+const betweenQuotes = between (char ('"')) (char ('"'));
+
+const stringParser = betweenQuotes (joinedMany (choice ([
+  joinedSequence ([
+    char ('\\'),
+    char ('"')
+  ]),
+  anythingExcept (char ('"'))
+]))) .map(stringType);
+
+// Adding the stringParser to the jsonParser
+const jsonParser = choice ([
+  nullParser,
+  trueParser,
+  falseParser,
+  numberParser,
+  stringParser
+]);
+</code></pre>
+
+<p>The <strong><em>anythingExcept</em></strong> parser comes in very handy here, and is especially expressive when compared with the image on the JSON spec website.</p>
+
+<p><img class="center" src="/images/json-str.gif" width="600" height="600" title="&lsquo;image&rsquo; &lsquo;images&rsquo;" ></p>
+
+<p>That only leaves Array and Object, which can both be pitfalls because they are basically just containers of <strong><em>jsonValue.</em></strong> To illustrate how this might go wrong, we can write the Array parser the “wrong” way first and then see how to address it.</p>
+
+<p>We can use the <strong><em>whitespace</em></strong> parser — which matches zero or more whitespace characters — to ensure the the array brackets and comma operator allow for any (optional) whitespace that might be there.</p>
+
+<pre><code class="javascript">const {
+  between,
+  char,
+  choice,
+  sepBy,
+  whitespace
+} = require('arcsecond');
+
+const whitespaceSurrounded = between (whitespace) (whitespace)
+const betweenSquareBrackets = between (whitespaceSurrounded (char ('['))) (whitespaceSurrounded(char (']')));
+const commaSeparated = sepBy (whitespaceSurrounded (char (',')));
+
+const arrayParser = betweenSquareBrackets (commaSeparated (jsonParser)) .map(arrayType);
+
+const jsonParser = choice ([
+  nullParser,
+  trueParser,
+  falseParser,
+  numberParser,
+  stringParser,
+  arrayParser
+]);
+
+// ReferenceError: jsonParser is not defined
+</code></pre>
+
+<p>Because <strong><em>arrayParser</em></strong> is defined in terms of <strong><em>jsonParser</em></strong>, and <strong><em>jsonParser</em></strong> is defined in terms of <strong><em>arrayParser</em></strong>, we run into a <em>ReferenceError</em>. If we moved the definition of <strong><em>arrayParser</em></strong> below <strong><em>jsonParser</em></strong>, we’d still have the same problem. We can fix this by wrapping the <strong><em>jsonParser</em></strong> in a special parser, aptly named <strong><em>recursiveParser</em></strong>. <a href="https://en.wikipedia.org/wiki/Thunk">The argument to <strong><em>recursiveParser</em></strong> is a thunk</a>, which will allow us to reference variables that are not yet in scope.</p>
+
+<pre><code class="javascript">const {
+  between,
+  char,
+  choice,
+  sepBy,
+  whitespace,
+  recursiveParser
+} = require('arcsecond');
+
+const whitespaceSurrounded = between (whitespace) (whitespace)
+const betweenSquareBrackets = between (whitespaceSurrounded (char ('['))) (whitespaceSurrounded(char (']')));
+const commaSeparated = sepBy (whitespaceSurrounded (char (',')));
+
+// Move this parser to the top, and wrap it in a recursiveParser,
+// which takes a function that returns a parser
+const jsonParser = recursiveParser (() =&gt; choice ([
+  nullParser,
+  trueParser,
+  falseParser,
+  numberParser,
+  stringParser,
+  arrayParser
+]));
+
+const arrayParser = betweenSquareBrackets (commaSeparated (jsonParser)) .map(arrayType);
+</code></pre>
+
+<p>Implementing the <strong><em>arrayParser</em></strong> is actually quite trivial — as simple as JSON values, separated by commas, in square brackets.</p>
+
+<p>Object is only marginally more complex. The values in an object are pairs of strings some other JSON value, with a colon as a separator.</p>
+
+<pre><code class="javascript">const {
+  between,
+  char,
+  choice,
+  sepBy,
+  whitespace,
+  recursiveParser
+} = require('arcsecond');
+
+const betweenCurlyBrackets = between (whitespaceSurrounded (char ('{'))) (whitespaceSurrounded(char ('}')));
+
+const jsonParser = recursiveParser (() =&gt; choice ([
+  nullParser,
+  trueParser,
+  falseParser,
+  numberParser,
+  stringParser,
+  arrayParser,
+  objectParser
+]));
+
+const keyValuePairParser = sequenceOf ([
+  stringParser,
+  whitespaceSurrounded (char (':')),
+  jsonParser
+]) .map(([key, _, value]) =&gt; keyValuePair(key, value));
+
+const objectParser = betweenCurlyBrackets (commaSeparated (keyValuePairParser)) .map(objectType);
+</code></pre>
+
+<p>And that’s it. The <strong><em>jsonValue</em></strong> can be used to parse a JSON document in it’s entirety. <a href="https://gist.github.com/francisrstokes/4d5f5b2de9644cf547799e3ac85fc6e2">The full parser can be found here as a gist.</a></p>
+
+<h3>Bonus Parser: CSV</h3>
+
+<p>Since I opened up with a CSV parser in Haskell, let’s see how that would look in <strong>arcsecond</strong>. I’ll keep it minimal and forgo creating data types to hold the values, and some extra strengthening that the Parsec version also doesn’t have.</p>
+
+<p>The result should be an array of arrays — the outer array holds “lines” and the inner arrays contain the elements of the line.</p>
+
+<pre><code class="javascript">const {
+  parse,
+  char,
+  many,
+  regex,
+  anythingExcept,
+  sepBy
+} = require('arcsecond');
+
+const joinedMany = parser =&gt; many (parser) .map(x =&gt; x.join(''));
+
+const cell = joinedMany (anythingExcept (regex (/^[,\n]/)));
+const cells = sepBy (char (',')) (cell);
+const parser = sepBy (char ('\n')) (cells);
+
+const data = `
+1,React JS,"A declarative efficient and flexible JavaScript library for building user interfaces"
+2,Vue.js,"Vue.js is a progressive incrementally-adoptable JavaScript framework for building UI on the web."
+3,Angular,"One framework. Mobile &amp; desktop."
+4,ember.js,"Ember.js - A JavaScript framework for creating ambitious web applications"`;
+
+console.log(
+  parse (parser) (data)
+);
+// -&gt; [
+//   [ '' ],
+//   [ '1', 'React JS', '"A declarative efficient and flexible JavaScript library for building user interfaces"' ],
+//   [ '2', 'Vue.js', '"Vue.js is a progressive incrementally-adoptable JavaScript framework for building UI on the web."' ],
+//   [ '3', 'Angular', '"One framework. Mobile &amp; desktop."' ],
+//   [ '4', 'ember.js', '"Ember.js - A JavaScript framework for creating ambitious web applications"' ],
+// ]
+</code></pre>
+
+<h3>Conclusion</h3>
+
+<p>There are quite a few key features of <strong>arcsecond</strong> that didn’t get a mention in this article, including the fact it <a href="https://en.wikipedia.org/wiki/Context-sensitive_grammar">can parse context sensitive languages</a>, and the parsing model is based on a <a href="https://github.com/fantasyland/fantasy-land">Fantasy Land -compliant Monad</a>. My main goal with this project was to bring the same level of expressivity that Parsec has to JavaScript, and I hope I’ve been able to do that.</p>
+
+<p><a href="https://github.com/francisrstokes/arcsecond">Please check out the project on github along with all the API docs and examples</a>, and think of <a href="https://github.com/francisrstokes/arcsecond"><strong>arcsecond</strong></a> the next time you find yourself writing an incomprehensible spaghetti regex — you might be using the wrong tool for the job! You can install the latest version with:</p>
+
+<blockquote><p><strong>npm i arcsecond</strong></p></blockquote>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Infinite Data Structures In JavaScript]]></title>

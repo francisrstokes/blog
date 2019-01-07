@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://francisrstokes.github.io/blog/blog/2019/01/07/arcsecond-parsing-in-javascript-made-easy/</loc>
+<lastmod>2019-01-07T14:20:18+01:00</lastmod>
+</url>
+<url>
 <loc>http://francisrstokes.github.io/blog/blog/2019/01/07/infinite-data-structures-in-javascript/</loc>
 <lastmod>2019-01-07T11:39:22+01:00</lastmod>
 </url>

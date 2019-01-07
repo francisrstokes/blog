@@ -4,7 +4,7 @@
   <title><![CDATA[Francis Stokes: Blog]]></title>
   <link href="http://francisrstokes.github.io/blog/atom.xml" rel="self"/>
   <link href="http://francisrstokes.github.io/blog/"/>
-  <updated>2019-01-07T13:10:16+01:00</updated>
+  <updated>2019-01-07T14:32:52+01:00</updated>
   <id>http://francisrstokes.github.io/blog/</id>
   <author>
     <name><![CDATA[Francis Stokes]]></name>
@@ -12,6 +12,1045 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Arcsecond: Parsing in JavaScript Made Easy]]></title>
+    <link href="http://francisrstokes.github.io/blog/blog/2019/01/07/arcsecond-parsing-in-javascript-made-easy/"/>
+    <updated>2019-01-07T14:20:18+01:00</updated>
+    <id>http://francisrstokes.github.io/blog/blog/2019/01/07/arcsecond-parsing-in-javascript-made-easy</id>
+    <content type="html"><![CDATA[<p><img class="center" src="http://francisrstokes.github.io/blog/images/gandalf.png" width="600" height="600" title="image" alt="images"></p>
+
+<p>I recently starting making a serious attempt at learning Haskell (anyone who has tried before will probably sympathise that it usually takes a couple of tries to crack it). Amongst the many cool things Haskell has to offer is an amazing parsing library that comes with the standard set of packages called <a href="https://wiki.haskell.org/Parsec"><strong>Parsec</strong></a><strong>,</strong> which lets you describe how to parse complex grammars in what essentially looks like natural language.</p>
+
+<p>Here is how a CSV parser is implemented using Parsec. Don’t worry if you don’t understand all the syntax, the point is that the whole parser is specified in just four lines.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="c1">-- Taken from http://book.realworldhaskell.org/read/using-parsec.html</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">import</span> <span class="nn">Text.ParserCombinators.Parsec</span>
+</span><span class='line'>
+</span><span class='line'><span class="nf">csvFile</span> <span class="ow">=</span> <span class="n">endBy</span> <span class="n">line</span> <span class="n">eol</span>
+</span><span class='line'><span class="nf">line</span> <span class="ow">=</span> <span class="n">sepBy</span> <span class="n">cell</span> <span class="p">(</span><span class="n">char</span> <span class="n">&#39;</span><span class="p">,</span><span class="n">&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="nf">cell</span> <span class="ow">=</span> <span class="n">many</span> <span class="p">(</span><span class="n">noneOf</span> <span class="s">&quot;,</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="nf">eol</span> <span class="ow">=</span> <span class="n">char</span> <span class="n">&#39;</span><span class="nf">\</span><span class="n">n&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nf">parseCSV</span> <span class="ow">::</span> <span class="kt">String</span> <span class="ow">-&gt;</span> <span class="kt">Either</span> <span class="kt">ParseError</span> <span class="p">[[</span><span class="kt">String</span><span class="p">]]</span>
+</span><span class='line'><span class="nf">parseCSV</span> <span class="n">input</span> <span class="ow">=</span> <span class="n">parse</span> <span class="n">csvFile</span> <span class="s">&quot;(unknown)&quot;</span> <span class="n">input</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you want to read more checkout <a href="http://book.realworldhaskell.org">http://book.realworldhaskell.org</a></p>
+
+<p>This post is not about Haskell however, <a href="https://github.com/francisrstokes/arcsecond">but rather a library I wrote called <strong>arcsecond</strong> which is based on Parsec</a>, with the goal of bringing that same expressivity to JavaScript.</p>
+
+<h3>Parser combinators</h3>
+
+<p><strong>arcsecond</strong> is a parser combinator library, in which complex parsers can be built by composing simple parsers. The simplest parsers just match specific strings or characters:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="p">{</span> <span class="nx">digit</span><span class="p">,</span> <span class="nx">letter</span><span class="p">,</span> <span class="kr">char</span><span class="p">,</span> <span class="nx">str</span><span class="p">,</span> <span class="nx">regex</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;arcsecond&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// digit will parse any number 0-9</span>
+</span><span class='line'><span class="c1">// letter will parse any letter a-z or A-Z</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// char and str will parse specific sequences</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">getA</span> <span class="o">=</span> <span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">getHello</span> <span class="o">=</span> <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// regex will parse any given regular expression</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">getLowNumbers</span> <span class="o">=</span> <span class="nx">regex</span> <span class="p">(</span><span class="sr">/^[0-4]+/</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>These can then be combined together with the <em>combinators</em> in the library.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="p">{</span> <span class="kr">char</span><span class="p">,</span> <span class="nx">str</span><span class="p">,</span> <span class="nx">sequenceOf</span><span class="p">,</span> <span class="nx">choice</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;arcsecond&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">worldOrMarsOrVenus</span> <span class="o">=</span> <span class="nx">choice</span> <span class="p">([</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;world&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;mars&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;venus&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="p">]);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">combinedParser</span> <span class="o">=</span> <span class="nx">sequenceOf</span> <span class="p">([</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="kr">char</span> <span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">worldOrMarsOrVenus</span>
+</span><span class='line'><span class="p">]);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then the new parsers can be used with text:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="p">{</span> <span class="nx">parse</span><span class="p">,</span> <span class="kr">char</span><span class="p">,</span> <span class="nx">str</span><span class="p">,</span> <span class="nx">sequenceOf</span><span class="p">,</span> <span class="nx">choice</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;arcsecond&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// parse creates a function we can use for parsing text</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">parseText</span> <span class="o">=</span> <span class="nx">parse</span> <span class="p">(</span><span class="nx">combinedParser</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span>
+</span><span class='line'>  <span class="nx">parseText</span> <span class="p">(</span><span class="s1">&#39;hello world&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="p">)</span>
+</span><span class='line'><span class="c1">// -&gt; [ &#39;hello&#39;, &#39; &#39;, &#39;world&#39; ]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Combinators</h4>
+
+<p>The combinators are where it gets cool. In <strong>arcsecond</strong> a combinator is a higher order parser, which takes one or more parsers as its input and gives back a new parser that <em>combines</em> those in some way. If you’ve used <em>higher order components</em> in react like <strong><em>connect</em></strong>, <strong><em>withRouter</em></strong>, or <strong><em>withStyles</em></strong>, then you’re already familiar with the idea.</p>
+
+<p>As shown above, <strong><em>sequenceOf</em></strong> is a combinator that will parse text using each of the parsers in order, collecting their results into an array.</p>
+
+<p><strong><em>choice</em></strong>, on the other hand, will try each of its parsers in order and use the first one that matches. The library contains more, like <strong><em>many</em></strong>, which takes a parser as an argument and matches as much as it can using that parser, collecting up the results in an array:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="p">{</span> <span class="nx">parse</span><span class="p">,</span> <span class="nx">many</span><span class="p">,</span> <span class="nx">choice</span><span class="p">,</span> <span class="nx">str</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;arcsecond&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">animal</span> <span class="o">=</span> <span class="nx">choice</span> <span class="p">([</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;dog&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;whale&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;bear&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;ant&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="p">]);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">manyAnimals</span> <span class="o">=</span> <span class="nx">many</span> <span class="p">(</span><span class="nx">animal</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// parse creates a function we can use for parsing text</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">parseText</span> <span class="o">=</span> <span class="nx">parse</span> <span class="p">(</span><span class="nx">manyAnimals</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span>
+</span><span class='line'>  <span class="nx">parseText</span> <span class="p">(</span><span class="s1">&#39;dogantwhaledogbear&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="p">)</span>
+</span><span class='line'><span class="c1">// -&gt; [ &#39;dog&#39;, &#39;ant&#39;, &#39;whale&#39;, &#39;dog&#39;, &#39;bear&#39; ]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can use <strong><em>sepBy</em></strong> to create a parser that matches items separated by something matched by <em>another parser</em>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="p">{</span> <span class="nx">parse</span><span class="p">,</span> <span class="nx">sepBy</span><span class="p">,</span> <span class="nx">choice</span><span class="p">,</span> <span class="nx">str</span><span class="p">,</span> <span class="kr">char</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;arcsecond&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">animal</span> <span class="o">=</span> <span class="nx">choice</span> <span class="p">([</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;dog&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;whale&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;bear&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;ant&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="p">]);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">commaSeparated</span> <span class="o">=</span> <span class="nx">sepBy</span> <span class="p">(</span><span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">commaSeparatedAnimals</span> <span class="o">=</span> <span class="nx">commaSeparated</span> <span class="p">(</span><span class="nx">animal</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// parse creates a function we can use for parsing text</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">parseText</span> <span class="o">=</span> <span class="nx">parse</span> <span class="p">(</span><span class="nx">commaSeparatedAnimals</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span>
+</span><span class='line'>  <span class="nx">parseText</span> <span class="p">(</span><span class="s1">&#39;dog,ant,whale,dog,bear&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="p">)</span>
+</span><span class='line'><span class="c1">// -&gt; [ &#39;dog&#39;, &#39;ant&#39;, &#39;whale&#39;, &#39;dog&#39;, &#39;bear&#39; ]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong><em>between</em></strong> will let you match items that occur between <em>two other parsers</em>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="p">{</span> <span class="nx">parse</span><span class="p">,</span> <span class="nx">between</span><span class="p">,</span> <span class="nx">sepBy</span><span class="p">,</span> <span class="nx">choice</span><span class="p">,</span> <span class="nx">str</span><span class="p">,</span> <span class="kr">char</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;arcsecond&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">animal</span> <span class="o">=</span> <span class="nx">choice</span> <span class="p">([</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;dog&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;whale&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;bear&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;ant&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="p">]);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">betweenBrackets</span> <span class="o">=</span> <span class="nx">between</span> <span class="p">(</span><span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;[&#39;</span><span class="p">))</span> <span class="p">(</span><span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;]&#39;</span><span class="p">));</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">commaSeparated</span> <span class="o">=</span> <span class="nx">sepBy</span> <span class="p">(</span><span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">commaSeparatedAnimals</span> <span class="o">=</span> <span class="nx">commaSeparated</span> <span class="p">(</span><span class="nx">animal</span><span class="p">);</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">arrayOfAnimals</span> <span class="o">=</span> <span class="nx">betweenBrackets</span> <span class="p">(</span><span class="nx">commaSeparatedAnimals</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// parse creates a function we can use for parsing text</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">parseText</span> <span class="o">=</span> <span class="nx">parse</span> <span class="p">(</span><span class="nx">arrayOfAnimals</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span>
+</span><span class='line'>  <span class="nx">parseText</span> <span class="p">(</span><span class="s1">&#39;[dog,ant,whale,dog,bear]&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="p">)</span>
+</span><span class='line'><span class="c1">// -&gt; [ &#39;dog&#39;, &#39;ant&#39;, &#39;whale&#39;, &#39;dog&#39;, &#39;bear&#39; ]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Curried Functions</h4>
+
+<p><strong>arcsecond</strong> makes use of curried functions. If you don’t know what a curried function is, give my article “<a href="https://hackernoon.com/making-functional-programming-click-836d4715baf2">Making Functional Programming Click</a>” a read. If you really can’t be bothered right now, open that in another tab and read this executive summary.</p>
+
+<p>A curried function is one that, if it takes more than one argument, it instead returns a new function that takes the next argument. It’s easier to see with some code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// Normal function, just a single function taking both arguments and returning a result</span>
+</span><span class='line'><span class="kd">function</span> <span class="nx">normalAdd</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">a</span> <span class="o">+</span> <span class="nx">b</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">normalAdd</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+</span><span class='line'><span class="c1">// -&gt; 3</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Curried function, a function that takes the first argument and then returns</span>
+</span><span class='line'><span class="c1">// *another function*, which takes the next argument.</span>
+</span><span class='line'><span class="kd">function</span> <span class="nx">curriedAdd</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="kd">function</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">a</span> <span class="o">+</span> <span class="nx">b</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">curriedAdd</span><span class="p">(</span><span class="mi">1</span><span class="p">)(</span><span class="mi">2</span><span class="p">);</span>
+</span><span class='line'><span class="c1">// -&gt; 3</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// We can use curried functions to easily make new, more specific functions</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">addOne</span> <span class="o">=</span> <span class="nx">curriedAdd</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">addOne</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+</span><span class='line'><span class="c1">// -&gt; 3</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see above, <strong><em>curriedAdd</em></strong> is first called with 1. Since it then returns a function, we can go ahead and call that with 2, which finally returns the actual result.</p>
+
+<p>We can use <strong><em>curriedAdd</em></strong> to create a new function by calling it with just one argument and then assigning the result to a variable. As a language, JavaScript treats functions as a first class citizen, meaning they can be passed around and assigned to variables.</p>
+
+<p>This principle lies at the heart of <strong>arcsecond,</strong> and every function in the library is defined this way. <strong><em>sepBy</em></strong> take two parsers — first a separator parser, and second a value parser. Because it is curried, it is easy to create a more specific combinator like <strong><em>commaSeparated</em></strong> by only supplying the first argument.</p>
+
+<blockquote><p>If you’re not used to it, it will probably seem strange. But a good lesson to learn as a software developer is not to have knee-jerk bad reactions to things that you don’t immediately understand. There is usually a reason, and you’ll find a lot more value by discovering that reason rather than dismissing it.</p></blockquote>
+
+<h3>Error Handling</h3>
+
+<p>If you try to parse a string which is not correctly formatted you would expect to get some kind of error message. <strong>arcsecond</strong> uses a special data type called an <strong><em>Either</em></strong>, which is <em>either</em> a value or an error. It’s like a <strong><em>Promise</em></strong>, which can be either Rejected or Resolved, but without the implication of being asynchronous. In an <strong><em>Either</em></strong> however, the “resolved” type is called a <strong><em>Right</em></strong>, and the “rejected” type is called a <strong><em>Left</em></strong>.</p>
+
+<p>The return type of <strong><em>parse</em></strong> is an Either. You can get at the value or error like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="p">{</span> <span class="nx">parse</span><span class="p">,</span> <span class="nx">sequenceOf</span><span class="p">,</span> <span class="nx">str</span><span class="p">,</span> <span class="kr">char</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;arcsecond&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">parser</span> <span class="o">=</span> <span class="nx">sequenceOf</span> <span class="p">([</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="kr">char</span> <span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;world&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="p">]);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">parseResult</span> <span class="o">=</span> <span class="nx">parse</span><span class="p">(</span><span class="nx">parser</span><span class="p">)(</span><span class="s1">&#39;hello world&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// We can use the cata method, which is basically a switch/case but for types</span>
+</span><span class='line'><span class="nx">parseResult</span><span class="p">.</span><span class="nx">cata</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">Left</span><span class="o">:</span> <span class="nx">err</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// do something here with the error</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>  <span class="nx">Right</span><span class="o">:</span> <span class="nx">result</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// result -&gt; [ &#39;hello&#39;, &#39; &#39;, &#39;world&#39; ] </span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>However this might not fit well into your codebase if you don’t have more functional code. For that reason there are two other options. The first is to convert the <strong><em>Either</em></strong> into a <strong><em>Promise:</em></strong></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="p">{</span> <span class="nx">parse</span><span class="p">,</span> <span class="nx">sequenceOf</span><span class="p">,</span> <span class="nx">str</span><span class="p">,</span> <span class="kr">char</span><span class="p">,</span> <span class="nx">toPromise</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;arcsecond&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">parser</span> <span class="o">=</span> <span class="nx">sequenceOf</span> <span class="p">([</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="kr">char</span> <span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;world&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="p">]);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">parseResult</span> <span class="o">=</span> <span class="nx">parse</span><span class="p">(</span><span class="nx">parser</span><span class="p">)(</span><span class="s1">&#39;hello world&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">toPromise</span><span class="p">(</span><span class="nx">parseResult</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// do something here with the error</span>
+</span><span class='line'>  <span class="p">})</span>
+</span><span class='line'>  <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">result</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// result -&gt; [ &#39;hello&#39;, &#39; &#39;, &#39;world&#39; ] </span>
+</span><span class='line'>  <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Or you can use <strong><em>toValue,</em></strong> which must be wrapped in a try/catch block:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="p">{</span> <span class="nx">parse</span><span class="p">,</span> <span class="nx">sequenceOf</span><span class="p">,</span> <span class="nx">str</span><span class="p">,</span> <span class="kr">char</span><span class="p">,</span> <span class="nx">toValue</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;arcsecond&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">parser</span> <span class="o">=</span> <span class="nx">sequenceOf</span> <span class="p">([</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="kr">char</span> <span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;world&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="p">]);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">parseResult</span> <span class="o">=</span> <span class="nx">parse</span><span class="p">(</span><span class="nx">parser</span><span class="p">)(</span><span class="s1">&#39;hello world&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">try</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kr">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">toValue</span><span class="p">(</span><span class="nx">parseResult</span><span class="p">);</span>
+</span><span class='line'>  <span class="c1">// -&gt; [ &#39;hello&#39;, &#39; &#39;, &#39;world&#39; ] </span>
+</span><span class='line'><span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">// do something with err</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Something more complex: JSON</h3>
+
+<p>Let’s put <strong>arcsecond</strong> through its paces by using it to create a parser for JSON.</p>
+
+<blockquote><p><a href="https://gist.github.com/francisrstokes/4d5f5b2de9644cf547799e3ac85fc6e2"><em>Click here to skip ahead and see the full JSON parser in one file</em></a></p></blockquote>
+
+<h4>Values</h4>
+
+<p>JSON only has 7 possible values:</p>
+
+<ul>
+<li>String</li>
+<li>Number</li>
+<li>true</li>
+<li>false</li>
+<li>null</li>
+<li>Array</li>
+<li>Object</li>
+</ul>
+
+
+<p>So to write a JSON parser, we just need to write parsers for all these values.</p>
+
+<h4>Types</h4>
+
+<p>In order for our parser to be useful we need to be able to identify what we’ve parsed, and the best way to do that is to put the results into a data type, which will provide a common interface for us to interact with the JSON tree. Every type has a <em>type</em> name, a <em>value</em>, and a <em>toString</em> function to pretty print the structure.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// Function to create a single-valued &quot;type constructor&quot;</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">makeBasicType</span> <span class="o">=</span> <span class="nx">typeName</span> <span class="o">=&gt;</span> <span class="nx">value</span> <span class="o">=&gt;</span> <span class="p">({</span>
+</span><span class='line'>  <span class="nx">type</span><span class="o">:</span> <span class="nx">typeName</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">value</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">toString</span><span class="o">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="err">`</span><span class="nx">$</span><span class="p">{</span><span class="nx">typeName</span><span class="p">}(</span><span class="nx">$</span><span class="p">{</span><span class="nx">value</span><span class="p">})</span><span class="err">`</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Function to create a multi-valued &quot;type constructor&quot;</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">makeMultiType</span> <span class="o">=</span> <span class="nx">typeName</span> <span class="o">=&gt;</span> <span class="nx">values</span> <span class="o">=&gt;</span> <span class="p">({</span>
+</span><span class='line'>  <span class="nx">type</span><span class="o">:</span> <span class="nx">typeName</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">value</span><span class="o">:</span> <span class="nx">values</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">toString</span><span class="o">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="err">`</span><span class="nx">$</span><span class="p">{</span><span class="nx">typeName</span><span class="p">}(</span><span class="nx">$</span><span class="p">{</span><span class="nx">values</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">v</span> <span class="o">=&gt;</span> <span class="nx">v</span><span class="p">.</span><span class="nx">toString</span><span class="p">()).</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">)})</span><span class="err">`</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">stringType</span> <span class="o">=</span> <span class="nx">makeBasicType</span><span class="p">(</span><span class="s1">&#39;String&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">numberType</span> <span class="o">=</span> <span class="nx">makeBasicType</span><span class="p">(</span><span class="s1">&#39;Number&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">booleanType</span> <span class="o">=</span> <span class="nx">makeBasicType</span><span class="p">(</span><span class="s1">&#39;Boolean&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">arrayType</span> <span class="o">=</span> <span class="nx">makeMultiType</span><span class="p">(</span><span class="s1">&#39;Array&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">objectType</span> <span class="o">=</span> <span class="nx">makeMultiType</span><span class="p">(</span><span class="s1">&#39;Object&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// For the object, we can store the key/value pairs in their own type</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">keyValuePair</span> <span class="o">=</span> <span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">({</span>
+</span><span class='line'>  <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;KeyValuePair&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">value</span><span class="o">:</span> <span class="p">[</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">],</span>
+</span><span class='line'>  <span class="nx">toString</span><span class="o">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="err">`</span><span class="nx">KeyValuePair</span><span class="p">(</span><span class="nx">$</span><span class="p">{</span><span class="nx">key</span><span class="p">.</span><span class="nx">toString</span><span class="p">()},</span> <span class="nx">$</span><span class="p">{</span><span class="nx">value</span><span class="p">.</span><span class="nx">toString</span><span class="p">()})</span><span class="err">`</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">nullType</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">({</span>
+</span><span class='line'>  <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;Null&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">value</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">toString</span><span class="o">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="s1">&#39;Null&#39;</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="nx">arrayType</span><span class="p">([</span>
+</span><span class='line'>  <span class="nx">stringType</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">numberType</span><span class="p">(</span><span class="mi">42</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">stringType</span><span class="p">(</span><span class="s2">&quot;world&quot;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">numberType</span><span class="p">(</span><span class="mi">84</span><span class="p">),</span>
+</span><span class='line'><span class="p">]).</span><span class="nx">toString</span><span class="p">();</span>
+</span><span class='line'><span class="c1">// -&gt; Array(String(hello), Number(42), String(world), Number(84))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With our types in hand let’s start with the absolute simplest of parsers: <strong><em>true</em></strong>, <strong><em>false</em></strong> and <strong><em>null</em></strong>. These are just literal strings:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="p">{</span> <span class="nx">parse</span><span class="p">,</span> <span class="nx">str</span><span class="p">,</span> <span class="nx">choice</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;arcsecond&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">nullParser</span> <span class="o">=</span> <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;null&#39;</span><span class="p">)</span> <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">nullType</span><span class="p">);</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">trueParser</span> <span class="o">=</span> <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;true&#39;</span><span class="p">)</span> <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">booleanType</span><span class="p">);</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">falseParser</span> <span class="o">=</span> <span class="nx">str</span> <span class="p">(</span><span class="s1">&#39;false&#39;</span><span class="p">)</span> <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">booleanType</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">jsonParser</span> <span class="o">=</span> <span class="nx">choice</span> <span class="p">([</span>
+</span><span class='line'>  <span class="nx">nullParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">trueParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">falseParser</span>
+</span><span class='line'><span class="p">]);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<blockquote><p>The parsers in <strong>arcsecond</strong> have a <strong><em>map</em></strong> method — just like arrays —which allows you to transform the value the parser matched. With <strong><em>map</em></strong> we can put the values matched into the data types defined above.</p></blockquote>
+
+<p>Numbers are a bit more complex. The <a href="https://json.org">JSON specification</a> has this railroad diagram showing how a number can be parsed:</p>
+
+<p><img class="center" src="http://francisrstokes.github.io/blog/images/json-number.gif" width="600" height="600" title="image" alt="images"></p>
+
+<p>The forks in the railroads show optionality, so the simplest number that can be matched is just 0.</p>
+
+<p>Basically a numbers like:</p>
+
+<ul>
+<li><em>1</em></li>
+<li><em>-0.2</em></li>
+<li><em>3.42e2</em></li>
+<li><em>-0.4352E-235</em></li>
+</ul>
+
+
+<p>Are all valid in JSON, while something like <em>03.46</em> is not, because no path in the railroad would allow for that.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">choice</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">sequenceOf</span><span class="p">,</span>
+</span><span class='line'>  <span class="kr">char</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">digits</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">regex</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">possibly</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">anyOfString</span>
+</span><span class='line'><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;arcsecond&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// The possibly parser either returns what it matches or null</span>
+</span><span class='line'><span class="c1">// We can use the possibly parser to make one that returns empty string</span>
+</span><span class='line'><span class="c1">// instead of null, which is more useful in this case</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">orEmptyString</span> <span class="o">=</span> <span class="nx">parser</span> <span class="o">=&gt;</span> <span class="nx">possibly</span> <span class="p">(</span><span class="nx">parser</span><span class="p">)</span> <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">x</span> <span class="o">=&gt;</span> <span class="p">(</span><span class="nx">x</span><span class="p">)</span> <span class="o">?</span> <span class="nx">x</span> <span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// We also want to get sequences of matches, but then join them back</span>
+</span><span class='line'><span class="c1">// together afterwards, instead of being in an array</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">joinedSequence</span> <span class="o">=</span> <span class="nx">parsers</span> <span class="o">=&gt;</span> <span class="nx">sequenceOf</span> <span class="p">(</span><span class="nx">parsers</span><span class="p">)</span> <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">x</span> <span class="o">=&gt;</span> <span class="nx">x</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">numberParser</span> <span class="o">=</span> <span class="nx">joinedSequence</span> <span class="p">([</span>
+</span><span class='line'>  <span class="nx">orEmptyString</span> <span class="p">(</span><span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)),</span>
+</span><span class='line'>  <span class="nx">choice</span> <span class="p">([</span>
+</span><span class='line'>    <span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">),</span>
+</span><span class='line'>    <span class="nx">regex</span> <span class="p">(</span><span class="sr">/^[1-9][0-9]*/</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">]),</span>
+</span><span class='line'>  <span class="nx">orEmptyString</span> <span class="p">(</span><span class="nx">joinedSequence</span> <span class="p">([</span>
+</span><span class='line'>    <span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">),</span>
+</span><span class='line'>    <span class="nx">digits</span>
+</span><span class='line'>  <span class="p">])),</span>
+</span><span class='line'>  <span class="nx">orEmptyString</span> <span class="p">(</span><span class="nx">joinedSequence</span><span class="p">([</span>
+</span><span class='line'>    <span class="nx">anyOfString</span> <span class="p">(</span><span class="s1">&#39;eE&#39;</span><span class="p">),</span>
+</span><span class='line'>    <span class="nx">orEmptyString</span> <span class="p">(</span><span class="nx">anyOfString</span> <span class="p">(</span><span class="s1">&#39;-+&#39;</span><span class="p">)),</span>
+</span><span class='line'>    <span class="nx">digits</span>
+</span><span class='line'>  <span class="p">]))</span>
+</span><span class='line'><span class="p">])</span> <span class="p">.</span><span class="nx">map</span> <span class="p">(</span><span class="nx">x</span> <span class="o">=&gt;</span> <span class="nx">numberType</span><span class="p">(</span><span class="nb">Number</span><span class="p">(</span><span class="nx">x</span><span class="p">)));</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Now we can add the numberParser to the jsonParser</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">jsonParser</span> <span class="o">=</span> <span class="nx">choice</span> <span class="p">([</span>
+</span><span class='line'>  <span class="nx">nullParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">trueParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">falseParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">numberParser</span>
+</span><span class='line'><span class="p">]);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you take the time to read through the <strong><em>numberParser</em></strong>, you’ll see it lines up pretty much 1:1 with the diagram above.</p>
+
+<p>Let’s try strings next. A string is anything between double quotes, but it can also contain escaped quotes.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">between</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">many</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">choice</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">sequenceOf</span><span class="p">,</span>
+</span><span class='line'>  <span class="kr">char</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">anythingExcept</span>
+</span><span class='line'><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;arcsecond&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Like joinedSequence, we want to get many of the same matches and then join them</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">joinedMany</span> <span class="o">=</span> <span class="nx">parser</span> <span class="o">=&gt;</span> <span class="nx">many</span> <span class="p">(</span><span class="nx">parser</span><span class="p">)</span> <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">x</span> <span class="o">=&gt;</span> <span class="nx">x</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">betweenQuotes</span> <span class="o">=</span> <span class="nx">between</span> <span class="p">(</span><span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">))</span> <span class="p">(</span><span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">stringParser</span> <span class="o">=</span> <span class="nx">betweenQuotes</span> <span class="p">(</span><span class="nx">joinedMany</span> <span class="p">(</span><span class="nx">choice</span> <span class="p">([</span>
+</span><span class='line'>  <span class="nx">joinedSequence</span> <span class="p">([</span>
+</span><span class='line'>    <span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;\\&#39;</span><span class="p">),</span>
+</span><span class='line'>    <span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">]),</span>
+</span><span class='line'>  <span class="nx">anythingExcept</span> <span class="p">(</span><span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">))</span>
+</span><span class='line'><span class="p">])))</span> <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">stringType</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Adding the stringParser to the jsonParser</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">jsonParser</span> <span class="o">=</span> <span class="nx">choice</span> <span class="p">([</span>
+</span><span class='line'>  <span class="nx">nullParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">trueParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">falseParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">numberParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">stringParser</span>
+</span><span class='line'><span class="p">]);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <strong><em>anythingExcept</em></strong> parser comes in very handy here, and is especially expressive when compared with the image on the JSON spec website.</p>
+
+<p><img class="center" src="http://francisrstokes.github.io/blog/images/json-str.gif" width="600" height="600" title="image" alt="images"></p>
+
+<p>That only leaves Array and Object, which can both be pitfalls because they are basically just containers of <strong><em>jsonValue.</em></strong> To illustrate how this might go wrong, we can write the Array parser the “wrong” way first and then see how to address it.</p>
+
+<p>We can use the <strong><em>whitespace</em></strong> parser — which matches zero or more whitespace characters — to ensure the the array brackets and comma operator allow for any (optional) whitespace that might be there.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">between</span><span class="p">,</span>
+</span><span class='line'>  <span class="kr">char</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">choice</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">sepBy</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">whitespace</span>
+</span><span class='line'><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;arcsecond&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">whitespaceSurrounded</span> <span class="o">=</span> <span class="nx">between</span> <span class="p">(</span><span class="nx">whitespace</span><span class="p">)</span> <span class="p">(</span><span class="nx">whitespace</span><span class="p">)</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">betweenSquareBrackets</span> <span class="o">=</span> <span class="nx">between</span> <span class="p">(</span><span class="nx">whitespaceSurrounded</span> <span class="p">(</span><span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;[&#39;</span><span class="p">)))</span> <span class="p">(</span><span class="nx">whitespaceSurrounded</span><span class="p">(</span><span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;]&#39;</span><span class="p">)));</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">commaSeparated</span> <span class="o">=</span> <span class="nx">sepBy</span> <span class="p">(</span><span class="nx">whitespaceSurrounded</span> <span class="p">(</span><span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)));</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">arrayParser</span> <span class="o">=</span> <span class="nx">betweenSquareBrackets</span> <span class="p">(</span><span class="nx">commaSeparated</span> <span class="p">(</span><span class="nx">jsonParser</span><span class="p">))</span> <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">arrayType</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">jsonParser</span> <span class="o">=</span> <span class="nx">choice</span> <span class="p">([</span>
+</span><span class='line'>  <span class="nx">nullParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">trueParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">falseParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">numberParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">stringParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">arrayParser</span>
+</span><span class='line'><span class="p">]);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// ReferenceError: jsonParser is not defined</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Because <strong><em>arrayParser</em></strong> is defined in terms of <strong><em>jsonParser</em></strong>, and <strong><em>jsonParser</em></strong> is defined in terms of <strong><em>arrayParser</em></strong>, we run into a <em>ReferenceError</em>. If we moved the definition of <strong><em>arrayParser</em></strong> below <strong><em>jsonParser</em></strong>, we’d still have the same problem. We can fix this by wrapping the <strong><em>jsonParser</em></strong> in a special parser, aptly named <strong><em>recursiveParser</em></strong>. <a href="https://en.wikipedia.org/wiki/Thunk">The argument to <strong><em>recursiveParser</em></strong> is a thunk</a>, which will allow us to reference variables that are not yet in scope.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">between</span><span class="p">,</span>
+</span><span class='line'>  <span class="kr">char</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">choice</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">sepBy</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">whitespace</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">recursiveParser</span>
+</span><span class='line'><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;arcsecond&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">whitespaceSurrounded</span> <span class="o">=</span> <span class="nx">between</span> <span class="p">(</span><span class="nx">whitespace</span><span class="p">)</span> <span class="p">(</span><span class="nx">whitespace</span><span class="p">)</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">betweenSquareBrackets</span> <span class="o">=</span> <span class="nx">between</span> <span class="p">(</span><span class="nx">whitespaceSurrounded</span> <span class="p">(</span><span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;[&#39;</span><span class="p">)))</span> <span class="p">(</span><span class="nx">whitespaceSurrounded</span><span class="p">(</span><span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;]&#39;</span><span class="p">)));</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">commaSeparated</span> <span class="o">=</span> <span class="nx">sepBy</span> <span class="p">(</span><span class="nx">whitespaceSurrounded</span> <span class="p">(</span><span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)));</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Move this parser to the top, and wrap it in a recursiveParser,</span>
+</span><span class='line'><span class="c1">// which takes a function that returns a parser</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">jsonParser</span> <span class="o">=</span> <span class="nx">recursiveParser</span> <span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">choice</span> <span class="p">([</span>
+</span><span class='line'>  <span class="nx">nullParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">trueParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">falseParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">numberParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">stringParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">arrayParser</span>
+</span><span class='line'><span class="p">]));</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">arrayParser</span> <span class="o">=</span> <span class="nx">betweenSquareBrackets</span> <span class="p">(</span><span class="nx">commaSeparated</span> <span class="p">(</span><span class="nx">jsonParser</span><span class="p">))</span> <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">arrayType</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Implementing the <strong><em>arrayParser</em></strong> is actually quite trivial — as simple as JSON values, separated by commas, in square brackets.</p>
+
+<p>Object is only marginally more complex. The values in an object are pairs of strings some other JSON value, with a colon as a separator.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">between</span><span class="p">,</span>
+</span><span class='line'>  <span class="kr">char</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">choice</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">sepBy</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">whitespace</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">recursiveParser</span>
+</span><span class='line'><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;arcsecond&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">betweenCurlyBrackets</span> <span class="o">=</span> <span class="nx">between</span> <span class="p">(</span><span class="nx">whitespaceSurrounded</span> <span class="p">(</span><span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;{&#39;</span><span class="p">)))</span> <span class="p">(</span><span class="nx">whitespaceSurrounded</span><span class="p">(</span><span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;}&#39;</span><span class="p">)));</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">jsonParser</span> <span class="o">=</span> <span class="nx">recursiveParser</span> <span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">choice</span> <span class="p">([</span>
+</span><span class='line'>  <span class="nx">nullParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">trueParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">falseParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">numberParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">stringParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">arrayParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">objectParser</span>
+</span><span class='line'><span class="p">]));</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">keyValuePairParser</span> <span class="o">=</span> <span class="nx">sequenceOf</span> <span class="p">([</span>
+</span><span class='line'>  <span class="nx">stringParser</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">whitespaceSurrounded</span> <span class="p">(</span><span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)),</span>
+</span><span class='line'>  <span class="nx">jsonParser</span>
+</span><span class='line'><span class="p">])</span> <span class="p">.</span><span class="nx">map</span><span class="p">(([</span><span class="nx">key</span><span class="p">,</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">value</span><span class="p">])</span> <span class="o">=&gt;</span> <span class="nx">keyValuePair</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">objectParser</span> <span class="o">=</span> <span class="nx">betweenCurlyBrackets</span> <span class="p">(</span><span class="nx">commaSeparated</span> <span class="p">(</span><span class="nx">keyValuePairParser</span><span class="p">))</span> <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">objectType</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And that’s it. The <strong><em>jsonValue</em></strong> can be used to parse a JSON document in it’s entirety. <a href="https://gist.github.com/francisrstokes/4d5f5b2de9644cf547799e3ac85fc6e2">The full parser can be found here as a gist.</a></p>
+
+<h3>Bonus Parser: CSV</h3>
+
+<p>Since I opened up with a CSV parser in Haskell, let’s see how that would look in <strong>arcsecond</strong>. I’ll keep it minimal and forgo creating data types to hold the values, and some extra strengthening that the Parsec version also doesn’t have.</p>
+
+<p>The result should be an array of arrays — the outer array holds “lines” and the inner arrays contain the elements of the line.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">parse</span><span class="p">,</span>
+</span><span class='line'>  <span class="kr">char</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">many</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">regex</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">anythingExcept</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">sepBy</span>
+</span><span class='line'><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;arcsecond&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">joinedMany</span> <span class="o">=</span> <span class="nx">parser</span> <span class="o">=&gt;</span> <span class="nx">many</span> <span class="p">(</span><span class="nx">parser</span><span class="p">)</span> <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">x</span> <span class="o">=&gt;</span> <span class="nx">x</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">cell</span> <span class="o">=</span> <span class="nx">joinedMany</span> <span class="p">(</span><span class="nx">anythingExcept</span> <span class="p">(</span><span class="nx">regex</span> <span class="p">(</span><span class="sr">/^[,\n]/</span><span class="p">)));</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">cells</span> <span class="o">=</span> <span class="nx">sepBy</span> <span class="p">(</span><span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))</span> <span class="p">(</span><span class="nx">cell</span><span class="p">);</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">parser</span> <span class="o">=</span> <span class="nx">sepBy</span> <span class="p">(</span><span class="kr">char</span> <span class="p">(</span><span class="s1">&#39;\n&#39;</span><span class="p">))</span> <span class="p">(</span><span class="nx">cells</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">data</span> <span class="o">=</span> <span class="err">`</span>
+</span><span class='line'><span class="mi">1</span><span class="p">,</span><span class="nx">React</span> <span class="nx">JS</span><span class="p">,</span><span class="s2">&quot;A declarative efficient and flexible JavaScript library for building user interfaces&quot;</span>
+</span><span class='line'><span class="mi">2</span><span class="p">,</span><span class="nx">Vue</span><span class="p">.</span><span class="nx">js</span><span class="p">,</span><span class="s2">&quot;Vue.js is a progressive incrementally-adoptable JavaScript framework for building UI on the web.&quot;</span>
+</span><span class='line'><span class="mi">3</span><span class="p">,</span><span class="nx">Angular</span><span class="p">,</span><span class="s2">&quot;One framework. Mobile &amp; desktop.&quot;</span>
+</span><span class='line'><span class="mi">4</span><span class="p">,</span><span class="nx">ember</span><span class="p">.</span><span class="nx">js</span><span class="p">,</span><span class="s2">&quot;Ember.js - A JavaScript framework for creating ambitious web applications&quot;</span><span class="err">`</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span>
+</span><span class='line'>  <span class="nx">parse</span> <span class="p">(</span><span class="nx">parser</span><span class="p">)</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+</span><span class='line'><span class="p">);</span>
+</span><span class='line'><span class="c1">// -&gt; [</span>
+</span><span class='line'><span class="c1">//   [ &#39;&#39; ],</span>
+</span><span class='line'><span class="c1">//   [ &#39;1&#39;, &#39;React JS&#39;, &#39;&quot;A declarative efficient and flexible JavaScript library for building user interfaces&quot;&#39; ],</span>
+</span><span class='line'><span class="c1">//   [ &#39;2&#39;, &#39;Vue.js&#39;, &#39;&quot;Vue.js is a progressive incrementally-adoptable JavaScript framework for building UI on the web.&quot;&#39; ],</span>
+</span><span class='line'><span class="c1">//   [ &#39;3&#39;, &#39;Angular&#39;, &#39;&quot;One framework. Mobile &amp; desktop.&quot;&#39; ],</span>
+</span><span class='line'><span class="c1">//   [ &#39;4&#39;, &#39;ember.js&#39;, &#39;&quot;Ember.js - A JavaScript framework for creating ambitious web applications&quot;&#39; ],</span>
+</span><span class='line'><span class="c1">// ]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Conclusion</h3>
+
+<p>There are quite a few key features of <strong>arcsecond</strong> that didn’t get a mention in this article, including the fact it <a href="https://en.wikipedia.org/wiki/Context-sensitive_grammar">can parse context sensitive languages</a>, and the parsing model is based on a <a href="https://github.com/fantasyland/fantasy-land">Fantasy Land -compliant Monad</a>. My main goal with this project was to bring the same level of expressivity that Parsec has to JavaScript, and I hope I’ve been able to do that.</p>
+
+<p><a href="https://github.com/francisrstokes/arcsecond">Please check out the project on github along with all the API docs and examples</a>, and think of <a href="https://github.com/francisrstokes/arcsecond"><strong>arcsecond</strong></a> the next time you find yourself writing an incomprehensible spaghetti regex — you might be using the wrong tool for the job! You can install the latest version with:</p>
+
+<blockquote><p><strong>npm i arcsecond</strong></p></blockquote>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Infinite Data Structures in JavaScript]]></title>
