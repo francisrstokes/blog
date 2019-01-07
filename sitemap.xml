@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://francisrstokes.github.io/blog/blog/2019/01/07/infinite-data-structures-in-javascript/</loc>
+<lastmod>2019-01-07T11:39:22+01:00</lastmod>
+</url>
+<url>
 <loc>http://francisrstokes.github.io/blog/</loc>
 </url>
 <url>
 <loc>http://francisrstokes.github.io/blog/blog/archives/</loc>
+</url>
+<url>
+<loc>http://francisrstokes.github.io/blog/about/</loc>
+</url>
+<url>
+<loc>http://francisrstokes.github.io/blog/blog/categories/javascript/</loc>
+</url>
+<url>
+<loc>http://francisrstokes.github.io/blog/blog/categories/haskell/</loc>
+</url>
+<url>
+<loc>http://francisrstokes.github.io/blog/blog/categories/functional-programming/</loc>
 </url>
 </urlset>
