@@ -27,16 +27,16 @@ html {
 
 body {
 	font-family: 'Helvetica Neue', sans-serif;
-	font-size: 16px;
+	font-size: 18px;
 	font-weight: lighter;
-	color: $themecolor;
-	max-width: 750px;
+	color: #111;
+	max-width: 950px;
 	padding-left: 0.5em;
 	padding-right: 0.5em;
 	
 	h1, h2, h3, h4, h5 {
 		font-family: 'Helvetica Neue', sans-serif;
-		font-weight: 100;
+		font-weight: 300;
 	}
 
 	a:hover {
