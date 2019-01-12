@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://francisrstokes.github.io/blog/blog/2019/01/12/exploring-the-peano-axioms-with-algebraic-data-types/</loc>
+<lastmod>2019-01-12T09:00:00+01:00</lastmod>
+</url>
+<url>
 <loc>http://francisrstokes.github.io/blog/blog/2019/01/07/arcsecond-parsing-in-javascript-made-easy/</loc>
 <lastmod>2019-01-07T14:20:18+01:00</lastmod>
 </url>
@@ -25,5 +29,17 @@
 </url>
 <url>
 <loc>http://francisrstokes.github.io/blog/blog/categories/functional-programming/</loc>
+</url>
+<url>
+<loc>http://francisrstokes.github.io/blog/blog/categories/mathematics/</loc>
+</url>
+<url>
+<loc>http://francisrstokes.github.io/blog/blog/categories/peano/</loc>
+</url>
+<url>
+<loc>http://francisrstokes.github.io/blog/blog/categories/adt/</loc>
+</url>
+<url>
+<loc>http://francisrstokes.github.io/blog/blog/categories/algebraic/</loc>
 </url>
 </urlset>

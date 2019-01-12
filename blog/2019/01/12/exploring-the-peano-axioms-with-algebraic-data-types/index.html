@@ -1,0 +1,717 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Exploring The Peano Axioms With Algebraic Data Types - Francis Stokes: Blog</title>
+  <meta name="author" content="Francis Stokes">
+
+  
+  <meta name="description" content="The Peano Axioms are 8 simple rules that can define the natural number system. What are the natural numbers? They&rsquo;re are just the numbers 0, 1 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://francisrstokes.github.io/blog/blog/2019/01/12/exploring-the-peano-axioms-with-algebraic-data-types">
+  <link href="/blog/favicon.png" rel="icon">
+  <link href="/blog/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/blog/atom.xml" rel="alternate" title="Francis Stokes: Blog" type="application/atom+xml">
+  <script src="/blog/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/blog/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='//fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='//fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/blog/">Francis Stokes: Blog</a></div>
+
+
+	<br><div class="header-subtitle">Programming ❤️ Math</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/blog/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:francisrstokes.github.io/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/blog/">Blog</a></li>
+  <li><a href="/blog/blog/archives">Archives</a></li>
+  <li><a href="/blog/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Exploring the Peano Axioms With Algebraic Data Types</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2019-01-12T09:00:00+01:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>The <em>Peano Axioms</em> are <a href="https://en.wikipedia.org/wiki/Peano_axioms" _target="blank">8 simple rules</a> that can define the natural number system. What are the natural numbers? They&rsquo;re are just the numbers <em>0, 1, 2, 3, &hellip;</em> and so on, up to infinity.</p>
+
+<p>This system is interesting because in mathematics, you need to be rigorous; You can&rsquo;t go around saying numbers (or any mathematical object) <em>just are</em>, you have be able to really describe what you mean when you talk about <em>zeroness</em> or <em>oneness</em>.</p>
+
+<h2>The Axioms</h2>
+
+<p>The Peano Axioms describe a <em>system</em> with two elements: An <em>object</em> <code>0</code>, and a <em>function</em> <code>S</code>. I&rsquo;m using these words object and function quite loosely. As you will see below, <code>0</code> could actually be any symbol you choose, and the function <code>S</code> (known as the successor function) also essentially acts as just a symbol - that is to say, it is not necessary to define <code>S</code> function further than what is shown below.</p>
+
+<p>These are the axioms as stated on wikipedia:</p>
+
+<ol>
+<li><code>0</code> is a natural number</li>
+<li>For every natural number <code>x</code>, <code>x = x</code> (reflexivity)</li>
+<li>For all natural numbers <code>x</code> and <code>y</code>, if <code>x = y</code>, then <code>y = x</code> (symmetry)</li>
+<li>For all natural numbers <code>x</code>, <code>y</code> and <code>z</code>, if <code>x = y</code> and <code>y = z</code>, then <code>x = z</code> (transitivity)</li>
+<li>For all <code>a</code> and <code>b</code>, if <code>b</code> is a natural number and <code>a = b</code>, then <code>a</code> is also a natural number (closure under equality)</li>
+<li>For every natural number <code>n</code>, <code>S(n)</code> is a natural number</li>
+<li>For all natural numbers <code>m</code> and <code>n</code>, <code>m = n</code> <strong>if and only if</strong> <code>S(m) = S(n)</code> (injection)</li>
+<li>For every natural number <code>n</code>, <code>S(n) = 0</code> is <strong>false</strong>. That is, there is no natural number whose successor is <code>0</code></li>
+</ol>
+
+
+<p>What these axioms state is that we have an initial number <code>0</code>, which is not the successor of any other number (i.e. it is the smallest), and that we can create new numbers by applying a successor function to any number. So there is a successor of <code>0</code> called <code>S(0)</code>, and a successor to that called <code>S(S(0))</code>, and so on.</p>
+
+<p>Practically speaking, you can read a Peano encoded natural number as simply being the number of <code>S</code>s it has. So <code>S(0)</code> is <code>1</code>, <code>S(S(0))</code> is <code>2</code>, and so on.</p>
+
+<p>Here&rsquo;s a table of the first few Peano numbers</p>
+
+<table>
+<thead>
+<tr>
+<th style="text-align:center;"> <em>N</em> </th>
+<th style="text-align:center;"> <em>Peano</em> </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;"> 0      </td>
+<td style="text-align:center;"> 0            </td>
+</tr>
+<tr>
+<td style="text-align:center;"> 1      </td>
+<td style="text-align:center;"> S(0)         </td>
+</tr>
+<tr>
+<td style="text-align:center;"> 2      </td>
+<td style="text-align:center;"> S(S(0))      </td>
+</tr>
+<tr>
+<td style="text-align:center;"> 3      </td>
+<td style="text-align:center;"> S(S(S(0)))   </td>
+</tr>
+<tr>
+<td style="text-align:center;"> 4      </td>
+<td style="text-align:center;"> S(S(S(S(0))))</td>
+</tr>
+</tbody>
+</table>
+
+
+<h2>Algebraic Data Types</h2>
+
+<p>We can represent this system in <em>types</em> by utilising something called an <a href="https://en.wikipedia.org/wiki/Algebraic_data_type" target="_blank">Algebraic Data Type</a>. An <em>Algebraic type</em> is either:</p>
+
+<ul>
+<li>A <strong>product</strong> type, like a <a href="https://en.wikipedia.org/wiki/Record_(computer_science)" target="_blank">record/object/struct</a> or a <a href="https://en.wikipedia.org/wiki/Tuple" target="_blank">tuple</a></li>
+<li>A <strong>sum</strong> type, which is a <em>union</em> of other types</li>
+</ul>
+
+
+<p>For this article we will focus on the <strong>sum type</strong>. There are many common sum types that we use every day. <code>Boolean</code> is a sum type of the types <code>True</code> and <code>False</code>. In Haskell it might be defined as</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="kr">data</span> <span class="kt">Boolean</span> <span class="ow">=</span> <span class="kt">True</span> <span class="o">|</span> <span class="kt">False</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In JavaScript, we can use a library like <code>daggy</code> or <code>algebraic-types</code> to create a sum type. For these examples I will use <code>algebraic-types</code> because it provides a mechanism to properly define recursive types.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="p">{</span><span class="nx">createUnionType</span><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;algebraic-types&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nb">Boolean</span> <span class="o">=</span> <span class="nx">createUnionType</span><span class="p">(</span><span class="s1">&#39;Boolean&#39;</span><span class="p">,</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">True</span><span class="o">:</span> <span class="p">[],</span>
+</span><span class='line'>  <span class="nx">False</span><span class="o">:</span> <span class="p">[]</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>True</code> and <code>False</code> are both types that belong to the type <code>Boolean</code>. This is a simple but powerful concept, because it implies that meaning can be <em>encoded</em> directly on the type level. To illustrate this further, let&rsquo;s take a breif look at a slightly more complex sum type, <code>Maybe</code>, which encodes possible nothingness.</p>
+
+<p>In Haskell:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="kr">data</span> <span class="kt">Maybe</span> <span class="n">a</span> <span class="ow">=</span> <span class="kt">Just</span> <span class="n">a</span> <span class="o">|</span> <span class="kt">Nothing</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In JavaScript:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="p">{</span><span class="nx">createUnionType</span><span class="p">,</span> <span class="nx">variable</span><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;algebraic-types&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">Maybe</span> <span class="o">=</span> <span class="nx">createUnionType</span><span class="p">(</span><span class="s1">&#39;Maybe&#39;</span><span class="p">,</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">Nothing</span><span class="o">:</span> <span class="p">[],</span>
+</span><span class='line'>  <span class="nx">Just</span><span class="o">:</span> <span class="p">[</span><span class="nx">variable</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)]</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This should be read <em>&ldquo;A <code>Maybe</code> of &lsquo;a&rsquo; is either <code>Just</code> &lsquo;a&rsquo; or it is <code>Nothing</code>&rdquo;</em>, where &lsquo;a&rsquo; can be <em>any</em> value. You never need to write a function or method that returns <code>null</code> to indicate no value because you can do it on the type level.</p>
+
+<p>One more thing that we can do with sum types is define <em>recursive</em> structures. A binary tree is laughably trival to implement as a sum type:</p>
+
+<p>In Haskell:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="kr">data</span> <span class="kt">BinaryTree</span> <span class="n">a</span> <span class="ow">=</span> <span class="kt">Leaf</span> <span class="n">a</span> <span class="o">|</span> <span class="kt">Branch</span> <span class="kt">BinaryTree</span> <span class="kt">BinaryTree</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In JavaScript:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="p">{</span><span class="nx">createUnionType</span><span class="p">,</span> <span class="nx">variable</span><span class="p">,</span> <span class="nx">recursive</span><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;algebraic-types&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">BinaryTree</span> <span class="o">=</span> <span class="nx">createUnionType</span><span class="p">(</span><span class="s1">&#39;BinaryTree&#39;</span><span class="p">,</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">Leaf</span><span class="o">:</span> <span class="p">[</span><span class="nx">variable</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)],</span>
+</span><span class='line'>  <span class="nx">Branch</span><span class="o">:</span> <span class="p">[</span><span class="nx">recursive</span><span class="p">(</span><span class="s1">&#39;left&#39;</span><span class="p">),</span> <span class="nx">recursive</span><span class="p">(</span><span class="s1">&#39;right&#39;</span><span class="p">)]</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Which is to say a <code>BinaryTree</code> is either <code>Leaf</code> of some value &lsquo;a&rsquo;, or it&rsquo;s a <code>Branch</code> of two more <code>BinaryTree</code>s (both of which can be either a <code>Leaf</code> or a <code>Branch</code>).</p>
+
+<h2>Back to Peano</h2>
+
+<p>Now we have a basic understanding of sum types, we can apply the concepts of <em>encoding meaning</em> and <em>recursive definition</em> to creating a type for Peano Numbers. I will use JavaScript for the rest of the examples, but the translation to Haskell is trival.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="nx">Peano</span> <span class="o">=</span> <span class="nx">createUnionType</span><span class="p">(</span><span class="s1">&#39;Peano&#39;</span><span class="p">,</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">O</span><span class="o">:</span> <span class="p">[],</span>
+</span><span class='line'>  <span class="nx">S</span><span class="o">:</span> <span class="p">[</span><span class="nx">recursive</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)]</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>Peano</code> type is made of two types: <code>O</code>, which has no variables of its own, and <code>S</code>, which has one variable that must be another <code>Peano</code> type. The recursive definition ensures that we can only have <em>axiomatically</em> correct constructions:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="p">{</span><span class="nx">S</span><span class="p">,</span> <span class="nx">O</span><span class="p">}</span> <span class="o">=</span> <span class="nx">Peano</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// All the following are valid</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">zero</span> <span class="o">=</span> <span class="nx">O</span><span class="p">();</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">one</span> <span class="o">=</span> <span class="nx">S</span><span class="p">(</span><span class="nx">zero</span><span class="p">);</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">two</span> <span class="o">=</span> <span class="nx">S</span><span class="p">(</span><span class="nx">one</span><span class="p">);</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">three</span> <span class="o">=</span> <span class="nx">S</span><span class="p">(</span><span class="nx">S</span><span class="p">(</span><span class="nx">S</span><span class="p">(</span><span class="nx">O</span><span class="p">())));</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// But this is not</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">invalid</span> <span class="o">=</span> <span class="nx">S</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="c1">// -&gt; Error: Variable x on constructor S must be a Peano</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So just by creating this type, we have the first axiom down. The next three axioms are related to the properties of <em>equality</em> in this system. We can encode them by adding a method <code>eq</code> to prototype of the <code>Peano</code> constructor. Since methods are defined on the <code>Peano</code> type rather than the on the <em>child types</em> <code>S</code> or <code>O</code>, there must be a mechanism to check which type the <code>Peano</code> actually is inside a method. <code>algebraic-types</code> adds a method called <code>match</code> to every type you create with it, which can perform this operation (called pattern matching). We can use this to build a recursive definition for <code>eq</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Peano</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">eq</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kr">const</span> <span class="nx">x</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">x</span><span class="p">.</span><span class="nx">match</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">O</span><span class="o">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nx">y</span><span class="p">.</span><span class="nx">match</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">O</span><span class="o">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="kc">true</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">S</span><span class="o">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="kc">false</span>
+</span><span class='line'>    <span class="p">}),</span>
+</span><span class='line'>    <span class="nx">S</span><span class="o">:</span> <span class="nx">innerX</span> <span class="o">=&gt;</span> <span class="nx">y</span><span class="p">.</span><span class="nx">match</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">O</span><span class="o">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="kc">false</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">S</span><span class="o">:</span> <span class="nx">innerY</span> <span class="o">=&gt;</span> <span class="nx">innerX</span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="nx">innerY</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">})</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">zero</span> <span class="o">=</span> <span class="nx">O</span><span class="p">();</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">one</span> <span class="o">=</span> <span class="nx">S</span><span class="p">(</span><span class="nx">zero</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">const</span> <span class="nx">x</span> <span class="o">=</span> <span class="nx">S</span><span class="p">(</span><span class="nx">one</span><span class="p">);</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">y</span> <span class="o">=</span> <span class="nx">S</span><span class="p">(</span><span class="nx">S</span><span class="p">(</span><span class="nx">zero</span><span class="p">));</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">z</span> <span class="o">=</span> <span class="nx">S</span><span class="p">(</span><span class="nx">S</span><span class="p">(</span><span class="nx">O</span><span class="p">()));</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Reflexivity</span>
+</span><span class='line'><span class="nx">x</span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="nx">x</span><span class="p">);</span> <span class="c1">// -&gt; true</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Symmetry</span>
+</span><span class='line'><span class="nx">x</span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="nx">y</span><span class="p">);</span> <span class="c1">// -&gt; true</span>
+</span><span class='line'><span class="nx">y</span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="nx">x</span><span class="p">);</span> <span class="c1">// -&gt; true</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Transitivity</span>
+</span><span class='line'><span class="nx">x</span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="nx">y</span><span class="p">);</span> <span class="c1">// -&gt; true</span>
+</span><span class='line'><span class="nx">y</span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="nx">z</span><span class="p">);</span> <span class="c1">// -&gt; true</span>
+</span><span class='line'><span class="nx">x</span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="nx">z</span><span class="p">);</span> <span class="c1">// -&gt; true</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The rest of the axioms fall out of either the type defintion itself, or the implementation of equality.</p>
+
+<p>Let&rsquo;s break down the recursive definition for equality a little bit, as the same principle will be used to define more operations like addition and multiplication.</p>
+
+<p>To compare if two <code>Peano</code>s, <code>x</code> and <code>y</code> are equal, we simply have to look at their types with <em>pattern-matching</em>. If <code>x</code> is a <code>O</code> and <code>y</code> is an <code>S</code> of <em>anything</em>, then they cannot be equal, but if <code>y</code> is also a <code>O</code> then we can say that they <em>are</em> equal. If both <code>x</code> and <code>y</code> are an <code>S</code> of something, then we must recursively call <code>eq</code> on their inner values. If they are indeed equal, this process will continue until both inner values reach <code>O</code>. If they are not equal, then one of the values will reach <code>O</code> while the other is an <code>S</code> of something, which we have already defined as non-equal.</p>
+
+<h2>More operations</h2>
+
+<h3>Addition</h3>
+
+<p>Even though we can construct <code>Peano</code> numbers, and check if they are equal to each other, this can be described as neither particularly useful nor particularly interesting. What would be interesting is the ability to add one <code>Peano</code> to another, yielding a new <code>Peano</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Peano</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">add</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kr">const</span> <span class="nx">x</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">x</span><span class="p">.</span><span class="nx">match</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">O</span><span class="o">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nx">y</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">S</span><span class="o">:</span> <span class="nx">innerX</span> <span class="o">=&gt;</span> <span class="nx">S</span><span class="p">(</span><span class="nx">y</span><span class="p">).</span><span class="nx">add</span><span class="p">(</span><span class="nx">innerX</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 2 + 3</span>
+</span><span class='line'><span class="nx">S</span><span class="p">(</span><span class="nx">S</span><span class="p">(</span><span class="nx">O</span><span class="p">())).</span><span class="nx">add</span><span class="p">(</span><span class="nx">S</span><span class="p">(</span><span class="nx">S</span><span class="p">(</span><span class="nx">S</span><span class="p">(</span><span class="nx">O</span><span class="p">()))));</span>
+</span><span class='line'><span class="c1">// -&gt; S(S(S(S(S(O())))))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Adding <code>x</code> and <code>y</code> is another recursive operation. Since for any number we know that <code>y + 0 = y</code>, <em>pattern-matching</em> a <code>O</code> value for <code>x</code> means that we can just return the other value (even if that value was a zero itself). If the value of <code>x</code> is an <code>S</code> however, and we increase the other <code>y</code> by wrapping it in an <code>S</code>, and add that to the inner value of <code>x</code>, then the effect is to add one to <code>y</code> and minus one from <code>x</code>. <code>x</code> will eventually match <code>O</code> and the final value of <code>y</code> will be returned.</p>
+
+<p>This is kind of like have two piles of blocks that you want to add. If you just move one block at a time from the first pile into the second pile until there are no blocks left in the first pile, then the second pile will <em>of course</em> contain the number of blocks in the second pile plus the number of blocks in the first.</p>
+
+<h3>Subtraction</h3>
+
+<p>A very similar trick can be used for subtraction, but first it&rsquo;s good to mention that subtraction in the Peano Axioms is not really <em>well defined</em>, since there are no negative numbers (axiom #8). For this reason we will say that an expression like <code>4 - 5</code> in our world will simply equal <code>0</code>, rather than <code>-1</code>.</p>
+
+<p>Going back to the idea of two piles, if we remove one block from each pile until one of the piles is empty, then whatever is left on the other pile is the result of <code>(Pile #1) - (Pile #2)</code>. You can try it for yourself if you need some convincing.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Peano</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">sub</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kr">const</span> <span class="nx">x</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">x</span><span class="p">.</span><span class="nx">match</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">O</span><span class="o">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nx">y</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">S</span><span class="o">:</span> <span class="nx">innerX</span> <span class="o">=&gt;</span> <span class="nx">y</span><span class="p">.</span><span class="nx">match</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">O</span><span class="o">:</span> <span class="o">=&gt;</span> <span class="nx">S</span><span class="p">(</span><span class="nx">innerX</span><span class="p">),</span>
+</span><span class='line'>      <span class="nx">S</span><span class="o">:</span> <span class="o">=&gt;</span> <span class="nx">innerX</span><span class="p">.</span><span class="nx">sub</span><span class="p">(</span><span class="nx">y</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">})</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 3 - 2</span>
+</span><span class='line'><span class="nx">S</span><span class="p">(</span><span class="nx">S</span><span class="p">(</span><span class="nx">S</span><span class="p">(</span><span class="nx">O</span><span class="p">()))).</span><span class="nx">sub</span><span class="p">(</span><span class="nx">S</span><span class="p">(</span><span class="nx">S</span><span class="p">(</span><span class="nx">O</span><span class="p">())));</span>
+</span><span class='line'><span class="c1">// -&gt; S(O())</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Notice that we need to put <code>x</code> back into an <code>S</code> if <code>y</code> is a <code>O</code>, because otherwise we would be off by one.</p>
+
+<h3>Multiplication</h3>
+
+<p>Multiplication is just glorified addition, so we should be able to build it onto of the existing <code>add</code> method.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Peano</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">mul</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kr">const</span> <span class="nx">x</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">x</span><span class="p">.</span><span class="nx">match</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">O</span><span class="o">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nx">O</span><span class="p">(),</span>
+</span><span class='line'>    <span class="nx">S</span><span class="o">:</span> <span class="nx">innerX</span> <span class="o">=&gt;</span> <span class="nx">y</span><span class="p">.</span><span class="nx">match</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">O</span><span class="o">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nx">O</span><span class="p">(),</span>
+</span><span class='line'>      <span class="nx">S</span><span class="o">:</span> <span class="nx">innerY</span> <span class="o">=&gt;</span> <span class="nx">S</span><span class="p">(</span><span class="nx">innerX</span><span class="p">).</span><span class="nx">add</span><span class="p">(</span>
+</span><span class='line'>        <span class="nx">innerY</span><span class="p">.</span><span class="nx">mul</span><span class="p">(</span><span class="nx">S</span><span class="p">(</span><span class="nx">innerX</span><span class="p">))</span>
+</span><span class='line'>      <span class="p">)</span>
+</span><span class='line'>    <span class="p">})</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Anything times <code>0</code> is always <code>0</code>, so in both those cases are easy. To multiply two numbers larger than zero we just keep adding <code>x</code>s while <code>y</code> is greater than <code>0</code>, unwrapping a level of <code>y</code> every time.</p>
+
+<h2>Converting to and from Integers</h2>
+
+<p>It could be useful (as far as this system is useful in a practical sense) to be able to convert <code>Peano</code> numbers to regular <code>Number</code>s, and to convert positive integers to <code>Peano</code> numbers. We can write a <code>toInteger</code> method like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Peano</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">toInteger</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kr">const</span> <span class="nx">x</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">x</span><span class="p">.</span><span class="nx">match</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">O</span><span class="o">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="mi">0</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">S</span><span class="o">:</span> <span class="nx">innerX</span> <span class="o">=&gt;</span> <span class="mi">1</span> <span class="o">+</span> <span class="nx">innerX</span><span class="p">.</span><span class="nx">toInteger</span><span class="p">()</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">S</span><span class="p">(</span><span class="nx">S</span><span class="p">(</span><span class="nx">S</span><span class="p">(</span><span class="nx">S</span><span class="p">(</span><span class="nx">O</span><span class="p">())))).</span><span class="nx">toInteger</span><span class="p">();</span>
+</span><span class='line'><span class="c1">// -&gt; 4</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Which is basically just a recursive operation that unfolds to something like <code>1 + 1 + 1 + 1 + ... + 0</code>.</p>
+
+<p><code>fromInteger</code> can be a static method on the <code>Peano</code> object which works in the other direction, by recursively wrapping <code>n</code> layers of <code>S</code> around an <code>O</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Peano</span><span class="p">.</span><span class="nx">fromInteger</span> <span class="o">=</span> <span class="p">(</span><span class="nx">n</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kr">const</span> <span class="nx">f</span> <span class="o">=</span> <span class="p">(</span><span class="nx">total</span><span class="p">,</span> <span class="nx">n</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nx">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nx">f</span><span class="p">(</span><span class="nx">S</span><span class="p">(</span><span class="nx">total</span><span class="p">),</span> <span class="nx">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">total</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">f</span><span class="p">(</span><span class="nx">O</span><span class="p">(),</span> <span class="nx">n</span><span class="p">);</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">Peano</span><span class="p">.</span><span class="nx">fromInt</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
+</span><span class='line'><span class="c1">// -&gt; S(S(S(S(S(O())))))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This has the nice effect of not blowing up if we throw in a negative number - we&rsquo;d simply get <code>0</code> in those cases.</p>
+
+<p>Now we can perform <em>advanced</em> calculations like</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="nx">three</span> <span class="o">=</span> <span class="nx">S</span><span class="p">(</span><span class="nx">S</span><span class="p">(</span><span class="nx">S</span><span class="p">(</span><span class="nx">O</span><span class="p">())));</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">Peano</span>
+</span><span class='line'>  <span class="p">.</span><span class="nx">fromInteger</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">.</span><span class="nx">mul</span><span class="p">(</span><span class="nx">three</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">.</span><span class="nx">sub</span><span class="p">(</span><span class="nx">S</span><span class="p">(</span><span class="nx">three</span><span class="p">))</span>
+</span><span class='line'>  <span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">O</span><span class="p">())</span>
+</span><span class='line'>  <span class="p">.</span><span class="nx">toInteger</span><span class="p">();</span>
+</span><span class='line'><span class="c1">// -&gt; 146</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Conclusion</h2>
+
+<p>The Peano Axioms have fascinated me ever since I learned about them because they are a digestible piece of mathematics that is somehow apart from the rote concepts you learn while making your way through the education system. The system shines a subtle light on the real underpinnings of mathematics; the rigor of defining the properties of a mathematical object. At school you might be tricked into thinking that numbers <em>just are</em>, but really they are just one of many mathematical objects with different kinds of properties. If you&rsquo;re like me, and perhaps never knew about this side of math, you can check out the field of <a href="https://en.wikipedia.org/wiki/Abstract_algebra" target="_blank">Abstract Algebra</a>, that classifies objects and systems of this kind based on the properties they have.</p>
+
+<p>But from a practical development perspective, as a number system, this isn&rsquo;t particularly useful in everyday life. That said, you might find some real value in <em>modeling with types</em>. It&rsquo;s a really powerful concept when applied correctly, especially when combined with functions that operate on types. You can discern a lot about a program by just looking at the <em>signatures</em> of such functions - what types do they take as parameters and what types do they return. If you&rsquo;ve read this article coming from the JavaScript world, I advise you to checkout Haskell (especially if you&rsquo;ve enjoyed the benefits of TypeScript). It takes programming with types to a fine art.</p>
+
+<p><a href="https://twitter.com/fstokesman" target="_blank">If you&rsquo;ve found this article interesting, I&rsquo;d really love to hear from you about it! Send me tweet @fstokesman</a></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Francis Stokes</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2019-01-12T09:00:00+01:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/blog/categories/adt/'>adt</a>, <a class='category' href='/blog/blog/categories/algebraic/'>algebraic</a>, <a class='category' href='/blog/blog/categories/functional-programming/'>functional-programming</a>, <a class='category' href='/blog/blog/categories/javascript/'>javascript</a>, <a class='category' href='/blog/blog/categories/mathematics/'>mathematics</a>, <a class='category' href='/blog/blog/categories/peano/'>peano</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://francisrstokes.github.io/blog/blog/2019/01/12/exploring-the-peano-axioms-with-algebraic-data-types/" data-via="fstokesman" data-counturl="http://francisrstokes.github.io/blog/blog/2019/01/12/exploring-the-peano-axioms-with-algebraic-data-types/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/blog/2019/01/07/arcsecond-parsing-in-javascript-made-easy/" title="Previous Post: Arcsecond: Parsing In JavaScript Made Easy">&laquo; Arcsecond: Parsing In JavaScript Made Easy</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/blog/2019/01/12/exploring-the-peano-axioms-with-algebraic-data-types/">Exploring The Peano Axioms With Algebraic Data Types</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2019/01/07/arcsecond-parsing-in-javascript-made-easy/">Arcsecond: Parsing In JavaScript Made Easy</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/blog/2019/01/07/infinite-data-structures-in-javascript/">Infinite Data Structures In JavaScript</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/francisrstokes">@francisrstokes</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'francisrstokes',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/blog/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2019 -  Francis Stokes <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
