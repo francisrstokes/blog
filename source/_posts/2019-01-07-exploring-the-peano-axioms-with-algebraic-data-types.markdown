@@ -31,13 +31,15 @@ Practically speaking, you can read a Peano encoded natural number as simply bein
 
 Here's a table of the first few Peano numbers
 
+
+
 | *N* | *Peano* |
 |:--------:|:--------------:|
-| 0      | 0            |
-| 1      | S(0)         |
-| 2      | S(S(0))      |
-| 3      | S(S(S(0)))   |
-| 4      | S(S(S(S(0))))|
+| 0      | `0`            |
+| 1      | `S(0)`         |
+| 2      | `S(S(0))`      |
+| 3      | `S(S(S(0)))`   |
+| 4      | `S(S(S(S(0))))`|
 
 
 ## Algebraic Data Types
